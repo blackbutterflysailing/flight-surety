@@ -16,6 +16,21 @@ git clone https://github.com/blackbutterflysailing/flight-surety.git
 then:
 
 `npm install`
+```
+
+Launch Ganache:
+
+```
+ganache-cli -m "spirit supply whale amount human item harsh scare congress discover talent hamster"
+```
+
+Your terminal should look something like this:
+
+![truffle test](images/ganache-cli.png)
+
+In a separate terminal window, Compile smart contracts:
+
+```
 `truffle compile`
 
 ## Develop Client
