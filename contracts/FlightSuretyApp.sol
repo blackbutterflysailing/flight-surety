@@ -280,7 +280,7 @@ contract FlightSuretyApp {
     {
         address airlineAddress = msg.sender;
 
-        flightSuretyData.airlinePayFund.value(msg.value)(msg.sender);
+        flightSuretyData.airlinePayFund.value(msg.value)();
 
     }
 
