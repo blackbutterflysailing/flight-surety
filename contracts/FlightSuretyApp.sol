@@ -258,7 +258,7 @@ contract FlightSuretyApp {
         (uint yesTotalVotes, uint totalVotes) = flightSuretyData.voteOnAirline(airlineAddress, vote);
 
         if (yesTotalVotes >= votesRequired) {
-            flightSuretyData.setAirlineState(airlineAddress, flightSuretyData.Registered);
+            flightSuretyData.setAirlineState(airlineAddress, FlightSuretyData.AirlineState.Registered);
             emit AirlineRegistered(airlineAddress);
         } else {
             uint availableVotes = airlineMemberCnt - totalVotes;
