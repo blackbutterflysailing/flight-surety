@@ -328,12 +328,10 @@ contract FlightSuretyApp {
         internal
     {
         bytes32 flightKey = getFlightKey(airline, flight, timestamp);
-        flight[flightKey].statusCode = statusCode;
-
-        uint credit = 1.5;
+        flights[flightKey].statusCode = statusCode;
 
         if (statusCode == STATUS_CODE_LATE_AIRLINE) {
-            flightSuretyData.creditInsurees(flightKey, credit);
+            flightSuretyData.creditInsurees(flightKey, PAYOUT_RATE);
         }
     }
 
@@ -393,6 +391,9 @@ contract FlightSuretyApp {
 
     // Fee to be paid when registering oracle
     uint256 public constant REGISTRATION_FEE = 1 ether;
+
+    // Credit rate paid to flight insurance holders
+    uint private constant PAYOUT_RATE = 150;
 
     // Number of oracles that must respond for valid status
     uint256 private constant MIN_RESPONSES = 3;
