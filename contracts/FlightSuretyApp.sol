@@ -263,7 +263,7 @@ contract FlightSuretyApp {
         } else {
             uint availableVotes = airlineMemberCnt - totalVotes;
             if (availableVotes < (votesRequired - yesTotalVotes)) {
-                flightSuretyData.setAirlineState(airlineAddress, flightSuretyData.DeniedRegistration);
+                flightSuretyData.setAirlineState(airlineAddress, FlightSuretyData.AirlineState.DeniedRegistration);
                 emit AirlineDeniedRegistration(airlineAddress);
             }
         }
