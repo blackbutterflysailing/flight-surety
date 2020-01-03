@@ -315,7 +315,7 @@ function setAirline
         external
         requireIsOperational
         requireCallerAuthorized
-        returns (int, int)
+        returns (uint, uint)
     {
         airlines[airlineAddress].vote.total += 1;
 
