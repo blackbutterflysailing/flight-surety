@@ -1,14 +1,14 @@
-pragma solidity ^0.4.25;
+pragma solidity ^0.5.0;
 
 import "../node_modules/openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 contract FlightSuretyData {
-    using SafeMath for uint256, uint;
+    using SafeMath for uint256;
 
     /********************************************************************************************/
     /*                                       DATA VARIABLES                                     */
     /********************************************************************************************/
-    
+
     // Account used to deploy contract
     address private contractOwner;
 
@@ -37,7 +37,7 @@ contract FlightSuretyData {
         Vote vote;
         bool isValue;
     }
- 
+
     struct Vote {
         mapping(address => bool) votes;
         uint8 yesTotal;
@@ -63,13 +63,17 @@ contract FlightSuretyData {
     // member airline count
     uint memberAirlineCount = 0;
 
-    mapping (address => Airline) internal airlines;
-    mapping (byte32 =>  []byte32) internal flightInsurances;
-    mapping (byte32 => Insurance) internal passengerInsurances;
+    // airline registration fee
+    uint256 airlineRegistrationFee;
+
+    mapping (address => Airline) private airlines;
+    mapping (bytes32 =>  bytes32[]) private flightInsurances;
+    mapping (bytes32 => Insurance) private passengerInsurances;
     /********************************************************************************************/
     /*                                       EVENT DEFINITIONS                                  */
     /********************************************************************************************/
     event AirlinePayedFund(address airlineAddress, uint amount);
+    event AirlineMembershipActived(address airlineAddress);
 
     /**
     * @dev Constructor
@@ -80,7 +84,10 @@ contract FlightSuretyData {
         contractOwner = msg.sender;
 
         // Register airline
-        registerAirline(msg.sender, "American Flyer", AirlineState.Registered);
+             setAirline(
+            msg.sender,
+            "American Flyer", AirlineState.Funded
+        );
     }
 
     /********************************************************************************************/
@@ -189,36 +196,57 @@ contract FlightSuretyData {
     /*                                     SMART CONTRACT FUNCTIONS                             */
     /********************************************************************************************/
 
-    function registerAirline(address airlineAddress, string airlineName, AirlineState airlineStatus)
+    function registerAirline(address airlineAddress, string calldata airlineName, AirlineState airlineStatus)
         external
         requireIsOperational
         requireCallerAuthorized
     {
-        airlines[airlineAddress] = AirLine({name: airlineName, registerAmount: 0, airlineState: airlineStatus, vote: Vote(0), isValue: true});
+            setAirline(
+            msg.sender,
+            airlineName, airlineStatus
+        );
+    }
+
+    /**
+    * @dev Set Airline Registration Cost
+    *
+    * Have the contract owner set the cost of the airline registration
+    */
+    function setAirlineRegistrationFee(uint256 registrationFee)
+        external
+        requireIsOperational
+        requireContractOwner
+    {
+        airlineRegistrationFee = registrationFee;
+    }
+
+   function setAuthorizedAddress(address contractCallerAddress)
+                            external
+                            requireIsOperational
+                            requireContractOwner
+    {
+        authorizedContractCaller[contractCallerAddress] = true;
     }
 
     function airlinePayFund()
-        external
+        public
         payable
         requireIsOperational
         requireCallerAuthorized
     {
-        emit AirlinePayedFund(msg.sender);
+        emit AirlinePayedFund(msg.sender, msg.value);
         airlines[msg.sender].registerAmount = airlines[msg.sender].registerAmount + msg.value;
-        memberAirlineCount++;
-    }
 
-    function isAirlineRegistered(address airlineAddress)
-        external
-        requireIsOperational
-        requireCallerAuthorized
-        returns (bool)
-    {
-        return airlines[airlineAddress].isValue;
+       if (airlines[msg.sender].registerAmount >= airlineRegistrationFee) {
+            airlines[msg.sender].airlineState = AirlineState.Funded;
+            memberAirlineCount++;
+            emit AirlineMembershipActived(msg.sender);
+        }
     }
 
     function isAirlineMember(address airlineAddress)
         external
+        view
         requireIsOperational
         requireCallerAuthorized
         returns (bool)
@@ -234,21 +262,34 @@ contract FlightSuretyData {
         airlines[airlineAddress].airlineState = airlineState;
     }
 
-    function airlineState(address airlineAddress) 
+    function getAirlineState(address airlineAddress)
         external
         requireIsOperational
         requireCallerAuthorized
+        returns (AirlineState)
     {
         return airlines[airlineAddress].airlineState;
     }
-    
-    function airlineMemberCount() 
+
+    function airlineMemberCount()
         external
         requireIsOperational
         requireCallerAuthorized
         returns (uint)
     {
         return memberAirlineCount;
+    }
+
+function setAirline
+    (
+        address airlineAddress,
+        string memory airlineName,
+        AirlineState airlineStatus
+    )
+        private
+    {
+        airlines[airlineAddress] = Airline({name: airlineName, registerAmount: 0, airlineState: airlineStatus, vote: Vote(0, 0), isValue: true});
+
     }
 
     function airlineInfo(address airlineAddress)
@@ -261,40 +302,48 @@ contract FlightSuretyData {
             bool isValue
         )
     {
-        Airline airline = airlines[airlineAddress];
+        Airline storage airline = airlines[airlineAddress];
         return(
             airline.name,
             airline.registerAmount,
             airline.airlineState,
             airline.isValue
-        )
+        );
     }
+
     function voteOnAirline(address airlineAddress, bool vote)
         external
         requireIsOperational
         requireCallerAuthorized
         returns (int, int)
-    {     
+    {
         airlines[airlineAddress].vote.total += 1;
 
         if (vote) {
-            airlines[airlineAddress].yesTotal += 1;
+            airlines[airlineAddress].vote.yesTotal += 1;
         }
 
-        return airlines[airlineAddress].vote.yesTotal, airlines[airlineAddress].total;
+        return (airlines[airlineAddress].vote.yesTotal, airlines[airlineAddress].vote.total);
     }
 
    /**
     * @dev Buy insurance for a flight
     *
     */
-    function buyFlightInsurance(address passengerAddress, address airlineAddress, string flightName, uint256 departureTime, uint insuranceCost)
+    function buyFlightInsurance(
+                                address passengerAddress,
+                                address airlineAddress,
+                                string calldata flightName,
+                                uint256 departureTime,
+                                uint insuranceCost
+                                )
         external
         payable
         requireIsOperational
        requireCallerAuthorized
     {
-        byte32 insuranceKey = getInsuranceKey(passengerAddress, flightKey);
+        bytes32 flightKey = getFlightKey(passengerAddress, flightName, departureTime);
+        bytes32 insuranceKey = getInsuranceKey(passengerAddress, flightKey);
         require(passengerInsurances[insuranceKey].isValue == true, "Passenger has already purchased insurance for this flight.");
 
         flightInsurances[flightKey].push(insuranceKey);
@@ -303,50 +352,48 @@ contract FlightSuretyData {
                                                     airline: airlineAddress,
                                                     value: insuranceCost,
                                                     isValue: true,
-                                                    insuranceState: Insurance.Purchased});
+                                                    insuranceState: InsuranceState.Purchased});
     }
 
     /**
      *  @dev Credits payouts to insurees
     */
-    function creditInsurees(byte32 flightKey, uint payoutRate)
+    function creditInsurees(bytes32 flightKey, uint payoutRate)
         external
         requireIsOperational
         requireCallerAuthorized
     {
-        bytes32[] insuranceKeys = flightInsurances[flightKey];
+        bytes32[] storage insuranceKeys = flightInsurances[flightKey];
 
         for (uint i = 0; i < insuranceKeys.length; i++) {
             Insurance storage insurance = passengerInsurances[insuranceKeys[i]];
 
-            if (insurance.state == InsuranceState.Purchased)
+            if (insurance.insuranceState == InsuranceState.Purchased) {
                 insurance.value.mul(payoutRate);
-                insurance.state = InsuranceState.PayoutAvailable;
-            } else (
-                insurance.state = InsuranceState.Expired;
-            )
+                insurance.insuranceState = InsuranceState.PayoutAvailable;
+            } else {
+                insurance.insuranceState = InsuranceState.Expired;
+            }
         }
     }
-    
 
     /**
      *  @dev Transfers eligible payout funds to insuree
      *
     */
-    function payoutInsuree(byte32 insuranceKey)
+    function payoutInsuree(bytes32 insuranceKey)
         external
         requireIsOperational
         requireCallerAuthorized
     {
         // Retrieve insurance of the buyer
-        Insurance insurance = passengerInsurances[insuranceKey];
+        Insurance storage insurance = passengerInsurances[insuranceKey];
 
         // Retrieve buy address from insurance
         address payable buyer = address(uint160(insurance.buyer));
-        uint payoutValue =  insurance.value;
+        uint payoutValue = insurance.value;
         insurance.value = 0;
         buyer.transfer(payoutValue);
-        
     }
 
     function getFlightKey
@@ -362,7 +409,7 @@ contract FlightSuretyData {
         return keccak256(abi.encodePacked(airline, flight, timestamp));
     }
 
-    function getInsuranceKey(address passenger, byte32 flightKey)
+    function getInsuranceKey(address passenger, bytes32 flightKey)
         internal
         pure
         returns(bytes32)
@@ -379,7 +426,7 @@ contract FlightSuretyData {
         external
         payable
     {
-        fund();
+        airlinePayFund();
     }
 
 
