@@ -442,7 +442,7 @@ contract FlightSuretyApp {
 
         uint8[3] memory indexes = generateIndexes(msg.sender);
 
-        address flightSuretyDataContract = address(uint160(address(flightSuretyData)));
+        address payable flightSuretyDataContract = address(uint160(address(flightSuretyData)));
         flightSuretyDataContract.transfer(msg.value);
 
         oracles[msg.sender] = Oracle({
