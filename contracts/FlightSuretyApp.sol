@@ -28,9 +28,6 @@ contract FlightSuretyApp {
     // Account used to deploy contract
     address private contractOwner;
 
-   // airline registration cost
-    uint airlineRegistrationFee = 0;
-
     // insurance payout percentage
     uint insurancePayoutPercentage = 0;
 
@@ -178,7 +175,7 @@ contract FlightSuretyApp {
         requireIsOperational
         requireContractOwner
     {
-        airlineRegistrationFee = REGISTRATION_FEE;
+        REGISTRATION_FEE = registrationCost;
     }
 
     /* @dev Set Insurance Percentage Amount
@@ -195,11 +192,12 @@ contract FlightSuretyApp {
 
     function airlineRegistrationCost()
         external
+        view
         requireIsOperational
         requireContractOwner
         returns (uint)
     {
-        return airlineRegistrationFee;
+        return REGISTRATION_FEE;
     }
 
     function setAuthorizedAddress(address contractCallerAddress)
@@ -390,7 +388,7 @@ contract FlightSuretyApp {
     uint8 private nonce = 0;
 
     // Fee to be paid when registering oracle
-    uint256 public constant REGISTRATION_FEE = 1 ether;
+    uint256 public REGISTRATION_FEE = 1 ether;
 
     // Credit rate paid to flight insurance holders
     uint private constant PAYOUT_RATE = 150;
