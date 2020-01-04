@@ -264,6 +264,7 @@ contract FlightSuretyData {
 
     function getAirlineState(address airlineAddress)
         external
+        view
         requireIsOperational
         requireCallerAuthorized
         returns (AirlineState)
