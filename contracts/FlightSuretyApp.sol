@@ -276,8 +276,6 @@ contract FlightSuretyApp {
         requireCallerAuthorized
         requireAirlineRegistered(msg.sender)
     {
-        address airlineAddress = msg.sender;
-
         flightSuretyData.airlinePayFund.value(msg.value)();
 
     }
