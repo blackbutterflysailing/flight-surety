@@ -158,6 +158,7 @@ contract FlightSuretyApp {
 
     function isAirlineMember(address airlineAddress)
         external
+        view
         requireIsOperational
         requireCallerAuthorized
         returns (bool)
