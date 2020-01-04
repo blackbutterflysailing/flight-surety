@@ -274,6 +274,7 @@ contract FlightSuretyData {
 
     function airlineMemberCount()
         external
+        view
         requireIsOperational
         requireCallerAuthorized
         returns (uint)
