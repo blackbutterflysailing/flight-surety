@@ -202,7 +202,7 @@ contract FlightSuretyData {
         requireCallerAuthorized
     {
             setAirline(
-            msg.sender,
+            airlineAddress,
             airlineName, airlineStatus
         );
     }
@@ -294,6 +294,7 @@ function setAirline
 
     function airlineInfo(address airlineAddress)
         external
+        view
         requireIsOperational
         returns (
             string memory name,
