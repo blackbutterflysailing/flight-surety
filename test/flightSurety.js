@@ -116,7 +116,7 @@ contract('Flight Surety Tests', async (accounts) => {
     it('(airline) first airline funded when contract is deployed', async () => {
 
         // ARRANGE
-        let result = await config.flightSuretyData.isAirlineMember.call(config.firstAirline);
+        let result = await config.flightSuretyApp.isAirlineMember.call(config.firstAirline);
         
         // ASSERT
         assert.equal(result, true, "First Airline was not registered");
