@@ -74,6 +74,7 @@ contract FlightSuretyData {
     /********************************************************************************************/
     event AirlinePayedFund(address airlineAddress, uint amount);
     event AirlineMembershipActived(address airlineAddress);
+    event CallingContractAuthorized(address callingContract);
 
     /**
     * @dev Constructor
@@ -167,6 +168,7 @@ contract FlightSuretyData {
                             requireContractOwner
     {
         authorizedContractCaller[contractCaller] = true;
+        emit CallingContractAuthorized(contractCaller);
     }
 
     /**
