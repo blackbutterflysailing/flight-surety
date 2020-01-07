@@ -52,12 +52,12 @@ contract('Flight Surety Tests', async (accounts) => {
       
     });
 
-    it(`(multiparty) can block access to functions using requireIsOperational when operating status is false`, async function () {
+    it(`can block access to functions using requireIsOperational when operating status is false`, async function () {
 
         let reverted = false;
         try 
         {
-        await config.flightSuretyApp.setAirlineRegistrationCost(10);
+        await config.flightSuretyData.isCallerAuthorized(config.owner);
         }
         catch(e) {
             reverted = true;
