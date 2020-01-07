@@ -54,8 +54,6 @@ contract('Flight Surety Tests', async (accounts) => {
 
     it(`(multiparty) can block access to functions using requireIsOperational when operating status is false`, async function () {
 
-        await config.flightSurety.setTestingMode(true);
-
         let reverted = false;
         try 
         {
