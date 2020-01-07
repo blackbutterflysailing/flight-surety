@@ -160,7 +160,6 @@ contract FlightSuretyApp {
         external
         view
         requireIsOperational
-        requireCallerAuthorized
         returns (bool)
     {
         return flightSuretyData.isAirlineMember(airlineAddress);
