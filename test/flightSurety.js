@@ -81,6 +81,23 @@ contract('Flight Surety Tests', async (accounts) => {
 
     });
 
+    it('(contract access) can block access for contracts that have not been authorized', async () => {
+
+        let reverted = false;
+
+        // ARRANGE
+        try {
+            await config.flightSuretyData.registerAirline.call(config.airlinesByProxy[0]);
+        }
+        catch(e) {
+            reverted = true;
+        }
+
+        // ASSERT
+        assert.equal(reverted, true, "Access allowed for this contract caller");
+
+    });
+
     it('(airline) first airline funded when contract is deployed', async () => {
 
         // ARRANGE
