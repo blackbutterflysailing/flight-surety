@@ -98,6 +98,21 @@ contract('Flight Surety Tests', async (accounts) => {
 
     });
 
+    it('(contract access) contracts can be authorized to be contract caller by contract owner', async () => {
+
+        let reverted = false;
+
+        // ARRANGE
+
+        // Authorize the FlightSuretyApp contract to be able to call contract FlightSuretyData
+        await config.flightSuretyData.authorizeCaller.call(config.flightSuretyApp.address);
+        let authorized = await config.flightSuretyData.isCallerAuthorized(config.flightSuretyApp.address);
+
+        // ASSERT
+        assert.equal(authorized, true, "Access not allowed for this contract caller");
+
+    });
+
     it('(airline) first airline funded when contract is deployed', async () => {
 
         // ARRANGE
