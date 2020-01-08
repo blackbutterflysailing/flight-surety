@@ -129,7 +129,7 @@ contract('Flight Surety Tests', async (accounts) => {
         let result = await config.flightSuretyApp.getAirline.call(config.config.airlinesByProxy[0]);
         
         // ASSERT
-        assert.equal(result, false, "Error airline should not have been found registered.");
+        assert.equal(result.isValue, false, "Error airline should not have been found registered.");
 
     });   
   
