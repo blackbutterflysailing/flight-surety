@@ -145,7 +145,7 @@ contract('Flight Surety Tests', async (accounts) => {
         catch(e) {
 
         }
-        let result = await config.flightSuretyData.isAirlineMember.call(newAirline); 
+        let result = await config.flightSuretyApp.isAirlineMember.call(newAirline); 
 
         // ASSERT
         assert.equal(result, false, "Airline should not be able to register another airline if it hasn't provided funding");
