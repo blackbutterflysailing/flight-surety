@@ -215,7 +215,7 @@ contract FlightSuretyApp {
     * @dev Add an airline to the registration queue
     *
     */
-    function registerAirline(address airlineAddress, string memory  airlineName)
+    function registerAirline(address airlineAddress, string memory airlineName)
         public
         requireIsOperational
         requireCallerAuthorized
@@ -276,8 +276,7 @@ contract FlightSuretyApp {
         requireCallerAuthorized
         requireAirlineRegistered(msg.sender)
     {
-        flightSuretyData.airlinePayFund.value(msg.value)();
-
+        flightSuretyData.airlinePayFund.value(msg.value)(msg.sender);
     }
 
     function registerFlight(string calldata flightName, uint256 scheduledDeparture)
