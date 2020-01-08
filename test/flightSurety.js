@@ -161,7 +161,7 @@ contract('Flight Surety Tests', async (accounts) => {
         // ARRANGE
          let payment = new BigNumber(web3.utils.toWei('10', "ether"));
          let airlineBalanceBegin = new BigNumber(await web3.eth.getBalance(config.airlinesByProxy[0]));
-         let flightSuretyDataBalanceBegin = new BigNumber(await web3.eth.getBalance(config.flightSuretyData));
+         let flightSuretyDataBalanceBegin = new BigNumber(await web3.eth.getBalance(config.flightSuretyData.address));
 
         // ACT
         try {
