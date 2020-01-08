@@ -230,20 +230,19 @@ contract FlightSuretyData {
         authorizedContractCaller[contractCallerAddress] = true;
     }
 
-    function airlinePayFund()
+    function airlinePayFund(address fundPayer)
         public
         payable
-        requireIsOperational
-        requireCallerAuthorized
     {
-        emit AirlinePayedFund(msg.sender, msg.value);
-        airlines[msg.sender].registerAmount = airlines[msg.sender].registerAmount + msg.value;
+        airlines[fundPayer].registerAmount = airlines[fundPayer].registerAmount + msg.value;
 
-       if (airlines[msg.sender].registerAmount >= airlineRegistrationFee) {
-            airlines[msg.sender].airlineState = AirlineState.Funded;
+        if (airlines[fundPayer].registerAmount >= airlineRegistrationFee) {
+            airlines[fundPayer].airlineState = AirlineState.Funded;
             memberAirlineCount++;
-            emit AirlineMembershipActived(msg.sender);
+            emit AirlineMembershipActived(fundPayer);
         }
+
+        // emit AirlinePayedFund(fundPayer, msg.value);
     }
 
     function isAirlineMember(address airlineAddress)
@@ -431,7 +430,7 @@ function setAirline
         external
         payable
     {
-        airlinePayFund();
+        airlinePayFund(msg.sender);
     }
 
 
