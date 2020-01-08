@@ -1,4 +1,3 @@
-
 var Test = require('../config/testConfig.js');
 var BigNumber = require('bignumber.js');
 
@@ -156,12 +155,13 @@ contract('Flight Surety Tests', async (accounts) => {
         assert(await config.flightSuretyApp.isAirlineMember.call(config.firstAirline), 'Airline is not funded')
     });
 
-    it('(airline) must func contract with 10 ether', async () => {
+    it('(airline) must func contract with 10 ether', async() => {
         
         // ARRANGE
-         let payment = new BigNumber(web3.utils.toWei('10', "ether"));
-         let airlineBalanceBegin = new BigNumber(await web3.eth.getBalance(config.airlinesByProxy[0]));
-         let flightSuretyDataBalanceBegin = new BigNumber(await web3.eth.getBalance(config.flightSuretyData.address));
+        let isError = false;
+        let payment = new BigNumber(web3.utils.toWei('10', "ether"));
+        let airlineBalanceBegin = new BigNumber(await web3.eth.getBalance(config.airlinesByProxy[0]));
+        let flightSuretyDataBalanceBegin = new BigNumber(await web3.eth.getBalance(config.flightSuretyData.address));
 
         // ACT
         try {
@@ -171,34 +171,37 @@ contract('Flight Surety Tests', async (accounts) => {
             });
         }
         catch(e) {
-
+            isError = true;
         }
 
         let airlineBalanceEnd = new BigNumber(await web3.eth.getBalance(config.airlinesByProxy[0]));
         let flightSuretyDataBalanceEnd = new BigNumber(await web3.eth.getBalance(config.flightSuretyData.address));
         
-        // ASSERT
+         // ASSERT
+        assert(isError, false, "There was an error fundAirlineRegistration");
         assert(airlineBalanceBegin.isGreaterThan(airlineBalanceEnd), 'Airline balance should be lower');
+        // assert(flightSuretyDataBalanceBegin.isGreaterThan(flightSuretyDataBalanceEnd), 'Data contract balance should be higher');
         assert(flightSuretyDataBalanceEnd.isGreaterThan(flightSuretyDataBalanceBegin), 'Data contract balance should be higher');
-
     });
 
-    it(`(airline) funded can register new airline, event AirlineRegistered emitted`, async() => {
+    it('(airline) funded can register new airline, event AirlineRegistered emitted', async() => {
 
         // ARRANGE
-        let addedAirline = await config.flightSuretyApp.getAirline.call(config.airlinesByProxy[0]);
+        let isError = false;
 
         // ACT
         try {
-            await config.flightSuretyApp.registerAirline(config.airlinesByProxy[0], 'TestAirlineByProxy2', 
+            await config.flightSuretyApp.registerAirline.call(config.airlinesByProxy[1], 'TestAirlineByProxy2', 
             {from: config.firstAirline});
         }
         catch(e) {
-
+            isError = true;
         }
         
         // ASSERT
-        assert.equal(config.airlinesByProxy[0].name, 'TestAirlineByProxy2', "airline was not registered by contract");
+        let airlineProxy1 = await config.flightSuretyApp.getAirline.call(config.airlinesByProxy[1]);
+        assert.equal(isError, false, "Error registering airline");
+        assert.equal(airlineProxy1.name, 'TestAirlineByProxy2', "airline was not registered by contract");
       });
  
 
@@ -206,7 +209,7 @@ contract('Flight Surety Tests', async (accounts) => {
 
         // ACT
         try {
-            await config.flightSuretyApp.registerAirline(config.airlinesByProxy[1], 'TestAirlineByProxy3', 
+            await config.flightSuretyApp.registerAirline(config.airlinesByProxy[2], 'TestAirlineByProxy3', 
             {from: config.airlinesByProxy[0]});
         }
         catch(e) {
@@ -214,7 +217,9 @@ contract('Flight Surety Tests', async (accounts) => {
         }
         
         // ASSERT
-        assert.equal(await config.flightSuretyApp.getAirline.call(config.airlinesByProxy[1]), 'TestAirlineByProxy3', "airline was not registered by contract");
+        let airlineProxy2 = await config.flightSuretyApp.getAirline.call(config.airlinesByProxy[2]);
+        assert.equal(airlineProxy2.name, 'TestAirlineByProxy3', "airline was not registered by contract");
       });
+
 
 });
