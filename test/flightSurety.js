@@ -126,7 +126,7 @@ contract('Flight Surety Tests', async (accounts) => {
     it('(airline) cannot get airline that has not beeen registered', async () => {
 
         // ARRANGE
-        let result = await config.flightSuretyData.getAirline.call(config.config.airlinesByProxy[0]);
+        let result = await config.flightSuretyApp.getAirline.call(config.config.airlinesByProxy[0]);
         
         // ASSERT
         assert.equal(result, false, "Error airline should not have been found registered.");
