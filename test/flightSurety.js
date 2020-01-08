@@ -175,7 +175,7 @@ contract('Flight Surety Tests', async (accounts) => {
         }
 
         let airlineBalanceEnd = new BigNumber(await web3.eth.getBalance(config.airlinesByProxy[0]));
-        let flightSuretyDataBalanceEnd = new BigNumber(await web3.eth.getBalance(config.flightSuretyData));
+        let flightSuretyDataBalanceEnd = new BigNumber(await web3.eth.getBalance(config.flightSuretyData.address));
         
         // ASSERT
         assert(airlineBalanceBegin.isGreaterThan(airlineBalanceEnd), 'Airline balance should be lower');
