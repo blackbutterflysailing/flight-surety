@@ -156,6 +156,14 @@ contract FlightSuretyApp {
         return true;  // Modify to call data contract's status
     }
 
+    function isAirlineRegistered(address airlineAddress)
+        public
+        view
+        returns(bool)
+    {
+        return flightSuretyData.isAirlineRegistered(airlineAddress);
+    }
+
     function isAirlineMember(address airlineAddress)
         external
         view
@@ -218,7 +226,7 @@ contract FlightSuretyApp {
     function registerAirline(address airlineAddress, string memory airlineName)
         public
         requireIsOperational
-        requireAirlineRegistered(airlineAddress)
+        requireAirlineNotRegistered(airlineAddress)
     {
   //require(flightSuretyData.isAirlineMember(airlineAddress), "Airline must pay registration fee to register other airlines");
             flightSuretyData.registerAirline(airlineAddress, airlineName, FlightSuretyData.AirlineState.Registered);
