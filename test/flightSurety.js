@@ -189,16 +189,11 @@ contract('Flight Surety Tests', async (accounts) => {
       });
  
 
-      it(`(airline) unfunded cannot register new airline`, async() => {
+      it('(airline) unfunded cannot register new airline', async() => {
 
         // ACT
-        try {
-            await config.flightSuretyApp.registerAirline(config.airlinesByProxy[2], 'TestAirlineByProxy3', 
-            {from: config.airlinesByProxy[0]});
-        }
-        catch(e) {
-
-        }
+        await config.flightSuretyApp.registerAirline(config.airlinesByProxy[2], 'TestAirlineByProxy3', 
+        {from: config.airlinesByProxy[0]});
         
         // ASSERT
         let airlineProxy2 = await config.flightSuretyApp.getAirline.call(config.airlinesByProxy[2]);
