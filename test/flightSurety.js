@@ -154,7 +154,6 @@ contract('Flight Surety Tests', async (accounts) => {
     it('(airline) must func contract with 10 ether', async() => {
         
         // ARRANGE
-        let isError = false;
         let payment = new BigNumber(web3.utils.toWei('10', "ether"));
         let airlineBalanceBegin = new BigNumber(await web3.eth.getBalance(config.airlinesByProxy[0]));
         let flightSuretyDataBalanceBegin = new BigNumber(await web3.eth.getBalance(config.flightSuretyData.address));
@@ -169,7 +168,6 @@ contract('Flight Surety Tests', async (accounts) => {
         let flightSuretyDataBalanceEnd = new BigNumber(await web3.eth.getBalance(config.flightSuretyData.address));
         
          // ASSERT
-        assert(isError, false, "There was an error fundAirlineRegistration");
         assert(airlineBalanceBegin.isGreaterThan(airlineBalanceEnd), 'Airline balance should be lower');
         // assert(flightSuretyDataBalanceBegin.isGreaterThan(flightSuretyDataBalanceEnd), 'Data contract balance should be higher');
         assert(flightSuretyDataBalanceEnd.isGreaterThan(flightSuretyDataBalanceBegin), 'Data contract balance should be higher');
