@@ -228,8 +228,7 @@ contract FlightSuretyApp {
         requireIsOperational
         requireAirlineNotRegistered(airlineAddress)
     {
-  //require(flightSuretyData.isAirlineMember(airlineAddress), "Airline must pay registration fee to register other airlines");
-            flightSuretyData.registerAirline(airlineAddress, airlineName, FlightSuretyData.AirlineState.Registered);
+        require(flightSuretyData.isAirlineMember(msg.sender), "Airline must pay registration fee to register other airlines");
 
         if (flightSuretyData.airlineMemberCount() <= 4) {
             flightSuretyData.registerAirline(airlineAddress, airlineName, FlightSuretyData.AirlineState.Registered);
