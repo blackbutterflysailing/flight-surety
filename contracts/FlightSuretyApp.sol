@@ -92,20 +92,20 @@ contract FlightSuretyApp {
     }
 
     /**
-    * @dev Modifier that requires the airline is not registered
-    */
-    modifier requireAirlineNotRegistered(address airlineAddress)
-    {
-        require(!flightSuretyData.isAirlineRegistered(airlineAddress), "Airline has already registered");
-        _;
-    }
-
-    /**
     * @dev Modifier that requires the airline is registered
     */
     modifier requireAirlineRegistered(address airlineAddress)
     {
-        require(flightSuretyData.isAirlineRegistered(airlineAddress), "Airline has already registered");
+        require(flightSuretyData.isAirlineRegistered(airlineAddress), "Airline is not registered");
+        _;
+    }
+
+   /**
+    * @dev Modifier that requires the airline is registered
+    */
+    modifier requireAirlineNotRegistered(address airlineAddress)
+    {
+        require(!flightSuretyData.isAirlineRegistered(airlineAddress), "Airline has already registered");
         _;
     }
 
@@ -218,10 +218,10 @@ contract FlightSuretyApp {
     function registerAirline(address airlineAddress, string memory airlineName)
         public
         requireIsOperational
-        requireCallerAuthorized
-        returns(bool success, uint256 votes)
+        requireAirlineRegistered(airlineAddress)
     {
-        require(flightSuretyData.isAirlineMember(airlineAddress), "Airline must pay registration fee to register other airlines");
+  //require(flightSuretyData.isAirlineMember(airlineAddress), "Airline must pay registration fee to register other airlines");
+            flightSuretyData.registerAirline(airlineAddress, airlineName, FlightSuretyData.AirlineState.Registered);
 
         if (flightSuretyData.airlineMemberCount() <= 4) {
             flightSuretyData.registerAirline(airlineAddress, airlineName, FlightSuretyData.AirlineState.Registered);
@@ -233,7 +233,6 @@ contract FlightSuretyApp {
             flightSuretyData.registerAirline(airlineAddress, airlineName, FlightSuretyData.AirlineState.VotesRequired);
             emit AirlineVotesRequired(airlineAddress);
        }
-        return (success, 0);
     }
 
     /**
@@ -276,7 +275,7 @@ contract FlightSuretyApp {
         requireCallerAuthorized
         requireAirlineRegistered(msg.sender)
     {
-        flightSuretyData.airlinePayFund.value(msg.value)(msg.sender);
+        flightSuretyData.fund.value(msg.value)(msg.sender);
     }
 
     function registerFlight(string calldata flightName, uint256 scheduledDeparture)
