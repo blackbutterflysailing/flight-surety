@@ -136,12 +136,7 @@ contract('Flight Surety Tests', async (accounts) => {
 
         // ACT
         await config.flightSuretyApp.registerAirline(newAirline, "TestProxy0");
-        // try {
-        //     await config.flightSuretyApp.registerAirline(newAirline, "TestProxy0");
-        // }
-        // catch(e) {
-        //     isError = true;
-        // }
+
         let airline = await config.flightSuretyApp.getAirline.call(newAirline); 
         let result = await config.flightSuretyApp.isAirlineMember.call(newAirline); 
 
