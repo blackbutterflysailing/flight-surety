@@ -82,18 +82,14 @@ contract('Flight Surety Tests', async (accounts) => {
 
     it('(contract access) can block access for contracts that have not been authorized', async () => {
 
-        let reverted = false;
-
         // ARRANGE
-        try {
-            await config.flightSuretyData.registerAirline.call(config.airlinesByProxy[0]);
-        }
-        catch(e) {
-            reverted = true;
-        }
+        let newAirline = config.airlinesByProxy[0];
 
+        await config.flightSuretyApp.registerAirline.call(newAirline,"TestAirlineProxy0");
+        let isFlightRegistered = await config.flightSuretyApp.isAirlineRegistered.call(newAirline);
+ 
         // ASSERT
-        assert.equal(reverted, true, "Access allowed for this contract caller");
+        assert.equal(isFlightRegistered, false, "Airline registered");
 
     });
 
@@ -136,17 +132,22 @@ contract('Flight Surety Tests', async (accounts) => {
     
         // ARRANGE
         let newAirline = config.airlinesByProxy[0];
+        let isError = false;
 
         // ACT
-        try {
-            await config.flightSuretyApp.registerAirline(newAirline, {from: config.firstAirline});
-        }
-        catch(e) {
-
-        }
+        await config.flightSuretyApp.registerAirline(newAirline, "TestProxy0");
+        // try {
+        //     await config.flightSuretyApp.registerAirline(newAirline, "TestProxy0");
+        // }
+        // catch(e) {
+        //     isError = true;
+        // }
+        let airline = await config.flightSuretyApp.getAirline.call(newAirline); 
         let result = await config.flightSuretyApp.isAirlineMember.call(newAirline); 
 
         // ASSERT
+        assert.equal(isError, false, "Error registering airline");
+        assert.equal(airline.name, "TestProxy0", "Airline is not registered." + airline.name);
         assert.equal(result, false, "Airline should not be able to register another airline if it hasn't provided funding");
 
     });
