@@ -160,15 +160,10 @@ contract('Flight Surety Tests', async (accounts) => {
         let flightSuretyDataBalanceBegin = new BigNumber(await web3.eth.getBalance(config.flightSuretyData.address));
 
         // ACT
-        try {
-            await config.flightSuretyApp.fundAirlineRegistration({
-                from: config.airlinesByProxy[0], 
-                value: payment
-            });
-        }
-        catch(e) {
-            isError = true;
-        }
+        await config.flightSuretyApp.fundAirlineRegistration({
+            from: config.airlinesByProxy[0], 
+            value: payment
+        });
 
         let airlineBalanceEnd = new BigNumber(await web3.eth.getBalance(config.airlinesByProxy[0]));
         let flightSuretyDataBalanceEnd = new BigNumber(await web3.eth.getBalance(config.flightSuretyData.address));
