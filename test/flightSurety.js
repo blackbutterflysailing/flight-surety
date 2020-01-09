@@ -193,12 +193,20 @@ contract('Flight Surety Tests', async (accounts) => {
       it('(airline) unfunded cannot register new airline', async() => {
 
         // ACT
-        await config.flightSuretyApp.registerAirline(config.airlinesByProxy[2], 'TestAirlineByProxy3', 
-        {from: config.airlinesByProxy[0]});
-        
+        let newAirline = config.airlinesByProxy[2];
+        let referenceAirline = config.airlinesByProxy[1];
+        let result = await config.flightSuretyApp.isAirlineMember.call(referenceAirline); 
+        let isError = false;
+
+        try {
+        await config.flightSuretyApp.registerAirline(newAirline, 'TestAirlineByProxy3', 
+        {from: referenceAirline});
+        }
+        catch(e) {
+            isError = true;
+        }        
         // ASSERT
-        let airlineProxy2 = await config.flightSuretyApp.getAirline.call(config.airlinesByProxy[2]);
-        assert.equal(airlineProxy2.name, 'TestAirlineByProxy3', "airline was not registered by contract");
+        assert.equal(isError, true, "Unfunded airline registered a new airline");
       });
 
 
