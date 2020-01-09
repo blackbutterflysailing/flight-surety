@@ -179,14 +179,9 @@ contract('Flight Surety Tests', async (accounts) => {
         let isError = false;
 
         // ACT
-        try {
-            await config.flightSuretyApp.registerAirline.call(config.airlinesByProxy[1], 'TestAirlineByProxy2', 
-            {from: config.firstAirline});
-        }
-        catch(e) {
-            isError = true;
-        }
-        
+        await config.flightSuretyApp.registerAirline.call(config.airlinesByProxy[1], 'TestAirlineByProxy2', 
+        {from: config.firstAirline});
+
         // ASSERT
         let airlineProxy1 = await config.flightSuretyApp.getAirline.call(config.airlinesByProxy[1]);
         assert.equal(isError, false, "Error registering airline");
