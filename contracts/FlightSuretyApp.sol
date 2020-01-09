@@ -280,7 +280,6 @@ contract FlightSuretyApp {
         external
         payable
         requireIsOperational
-        requireCallerAuthorized
         requireAirlineRegistered(msg.sender)
     {
         flightSuretyData.fund.value(msg.value)(msg.sender);
