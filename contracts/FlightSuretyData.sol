@@ -201,7 +201,7 @@ contract FlightSuretyData {
     function registerAirline(address airlineAddress, string calldata airlineName, AirlineState airlineStatus)
         external
         requireIsOperational
-        requireCallerAuthorized
+        requireCallerAuthorized()
     {
             setAirline(
             airlineAddress,
@@ -230,17 +230,18 @@ contract FlightSuretyData {
         authorizedContractCaller[contractCallerAddress] = true;
     }
 
-    function airlinePayFund(address fundPayer)
+    function fund(address fundPayer)
         public
         payable
     {
-        airlines[fundPayer].registerAmount = airlines[fundPayer].registerAmount + msg.value;
+         airlines[fundPayer].airlineState = AirlineState.Funded;
+        //airlines[fundPayer].registerAmount = airlines[fundPayer].registerAmount + msg.value;
 
-        if (airlines[fundPayer].registerAmount >= airlineRegistrationFee) {
-            airlines[fundPayer].airlineState = AirlineState.Funded;
-            memberAirlineCount++;
-            emit AirlineMembershipActived(fundPayer);
-        }
+        // if (airlines[fundPayer].registerAmount >= airlineRegistrationFee) {
+        //     airlines[fundPayer].airlineState = AirlineState.Funded;
+        //     memberAirlineCount++;
+        //     emit AirlineMembershipActived(fundPayer);
+        // }
 
         // emit AirlinePayedFund(fundPayer, msg.value);
     }
@@ -430,7 +431,7 @@ function setAirline
         external
         payable
     {
-        airlinePayFund(msg.sender);
+        fund(msg.sender);
     }
 
 
