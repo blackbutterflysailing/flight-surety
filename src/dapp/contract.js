@@ -17,7 +17,7 @@ export default class Contract {
         this.flights = {};
     }
 
-    initialize(callback) {
+    async initialize(callback) {
         let accounts = await this.web3.eth.getAccounts();
 
         this.owner = accounts[0];
