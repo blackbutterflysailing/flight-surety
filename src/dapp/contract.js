@@ -31,6 +31,16 @@ export default class Contract {
         // Authorize Contract Caller to Access Data Contract
         await config.flightSuretyData.authorizeCaller.call(this.config.appAddress);
 
+            // Register airline accounts
+            for (let i = 0; i < 4; i++) {
+                await config.flightSuretyApp.methods.registerAirline.call(this.airlines[i], this.airlineNames[i] + "Airlines", {from: this.owner, gas: 1500000});
+                isRegistered = await config.flightSuretyApp.methods.isAirlineRegistered(this.airlines[i]);
+                if (isRegistered) {
+                    airline = await config.flightSuretyApp.methods.getAirline.call(this.airlines[i]);
+                    console.log("Airline " + airline.name);
+                }
+            }
+
         // this.web3.eth.getAccounts((error, accts) => {
            
         //     this.owner = accts[0];
