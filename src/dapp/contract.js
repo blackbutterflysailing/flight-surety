@@ -8,10 +8,13 @@ export default class Contract {
         let config = Config[network];
         this.web3 = new Web3(new Web3.providers.HttpProvider(config.url));
         this.flightSuretyApp = new this.web3.eth.Contract(FlightSuretyApp.abi, config.appAddress);
+        this.flightSuretyData = new this.web3.eth.Contract(FlightSuretyData.abi, config.dataAddress);
         this.initialize(callback);
         this.owner = null;
         this.airlines = [];
+        this.airlineNames = ["England", "France", "Germany", "Spain"];
         this.passengers = [];
+        this.flights = {};
     }
 
     initialize(callback) {
@@ -24,6 +27,9 @@ export default class Contract {
 
         // Set up four passenger accounts
         this.passengers = accounts.slice(5, 9);
+
+        // Authorize Contract Caller to Access Data Contract
+        await config.flightSuretyData.authorizeCaller.call(this.config.appAddress);
 
         // this.web3.eth.getAccounts((error, accts) => {
            
