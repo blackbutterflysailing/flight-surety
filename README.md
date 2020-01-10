@@ -84,3 +84,4 @@ Deploy the contents of the ./dapp folder
     * Open file node_modules\webpack-dev-server\bin\webpack-dev-server.js
     * Change 'webpack-cli/bin/config-yargs' to 'webpack-cli/bin/config/config-yargs'
     * Change 'webpack-cli/bin/convert-argv' to 'webpack-cli/bin/utils/convert-argv'
+    * Reference: https://github.com/webpack/webpack-dev-server/issues/2029
