@@ -74,8 +74,13 @@ Deploy the contents of the ./dapp folder
 * [Web3Js Reference](https://github.com/ethereum/wiki/wiki/JavaScript-API)
 
 ## Cautionary Tales
-* Make sure that all the contracts have the right pragma amond the contracts of 
+* Make sure that all the contracts have the right pragma amond the contracts of
     * FlightSuretyApp
     * FlightSuretyData
     * Migrations
     * SafeMath
+
+* Fix the error "Error: Cannot find module 'webpack-cli/bin/config-yargs'"
+    * Open file node_modules\webpack-dev-server\bin\webpack-dev-server.js
+    * Change 'webpack-cli/bin/config-yargs' to 'webpack-cli/bin/config/config-yargs'
+    * Change 'webpack-cli/bin/convert-argv' to 'webpack-cli/bin/utils/convert-argv'
