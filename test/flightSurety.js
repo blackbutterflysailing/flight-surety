@@ -169,7 +169,6 @@ contract('Flight Surety Tests', async (accounts) => {
         
          // ASSERT
         assert(airlineBalanceBegin.isGreaterThan(airlineBalanceEnd), 'Airline balance should be lower');
-        // assert(flightSuretyDataBalanceBegin.isGreaterThan(flightSuretyDataBalanceEnd), 'Data contract balance should be higher');
         assert(flightSuretyDataBalanceEnd.isGreaterThan(flightSuretyDataBalanceBegin), 'Data contract balance should be higher');
     });
 
@@ -183,6 +182,7 @@ contract('Flight Surety Tests', async (accounts) => {
         await config.flightSuretyApp.registerAirline(newAirline, "TestProxy1", {from: airlineByProxy0});
 
         let airline = await config.flightSuretyApp.getAirline.call(newAirline); 
+        console.log("airline=", airline)
         let result = await config.flightSuretyApp.isAirlineMember.call(newAirline); 
 
         // ASSERT
@@ -210,5 +210,25 @@ contract('Flight Surety Tests', async (accounts) => {
         assert.equal(isError, true, "Unfunded airline registered a new airline");
       });
 
+      it('(airline) can fund new registered airline', async() => {
 
+         // ARRANGE
+         let payment = new BigNumber(web3.utils.toWei('10', "ether"));
+         let airlineBalanceBegin = new BigNumber(await web3.eth.getBalance(config.airlinesByProxy[1]));
+         let flightSuretyDataBalanceBegin = new BigNumber(await web3.eth.getBalance(config.flightSuretyData.address));
+
+         // ACT
+         await config.flightSuretyApp.fundAirlineRegistration({
+             from: config.airlinesByProxy[1],
+             value: payment
+         });
+
+         let airlineBalanceEnd = new BigNumber(await web3.eth.getBalance(config.airlinesByProxy[1]));
+         let flightSuretyDataBalanceEnd = new BigNumber(await web3.eth.getBalance(config.flightSuretyData.address));
+
+          // ASSERT
+         assert(airlineBalanceBegin.isGreaterThan(airlineBalanceEnd), 'Airline balance should be lower');
+         assert(flightSuretyDataBalanceEnd.isGreaterThan(flightSuretyDataBalanceBegin), 'Data contract balance should be higher');
+
+      });
 });
