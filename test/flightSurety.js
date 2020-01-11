@@ -231,4 +231,24 @@ contract('Flight Surety Tests', async (accounts) => {
          assert(flightSuretyDataBalanceEnd.isGreaterThan(flightSuretyDataBalanceBegin), 'Data contract balance should be higher');
 
       });
+
+      it('(airline) can register a new airline', async() => {
+
+        // ARRANGE
+        let newAirline = config.airlinesByProxy[2];
+        let airlineByProxy1 = config.airlinesByProxy[1];
+
+        // ACT
+        await config.flightSuretyApp.registerAirline(newAirline, "TestProxy2", {from: airlineByProxy1});
+
+        let airline = await config.flightSuretyApp.getAirline.call(newAirline);
+        console.log("airline=", airline)
+        let result = await config.flightSuretyApp.isAirlineMember.call(newAirline);
+
+        // ASSERT
+        assert.equal(airline.name, "TestProxy2", "Airline is not registered." + airline.name);
+        assert.equal(result, false, "Airline should not be able to register another airline if it hasn't provided funding");
+
+     });
+
 });
