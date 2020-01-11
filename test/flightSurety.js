@@ -173,13 +173,14 @@ contract('Flight Surety Tests', async (accounts) => {
         assert(flightSuretyDataBalanceEnd.isGreaterThan(flightSuretyDataBalanceBegin), 'Data contract balance should be higher');
     });
 
-    it('(airline) funded can register new airline, event AirlineRegistered emitted', async() => {
+    it('(airline) funded airline can register new airline, event AirlineRegistered emitted', async() => {
 
         // ARRANGE
         let newAirline = config.airlinesByProxy[1];
+        let airlineByProxy0 = config.airlinesByProxy[0];
 
         // ACT
-        await config.flightSuretyApp.registerAirline(newAirline, "TestProxy1");
+        await config.flightSuretyApp.registerAirline(newAirline, "TestProxy1", {from: airlineByProxy0});
 
         let airline = await config.flightSuretyApp.getAirline.call(newAirline); 
         let result = await config.flightSuretyApp.isAirlineMember.call(newAirline); 
