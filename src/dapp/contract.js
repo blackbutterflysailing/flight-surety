@@ -41,6 +41,13 @@ export default class Contract {
                 airline = await config.flightSuretyApp.methods.getAirline.call(this.airlines[i]);
                 console.log("Airline " + airline.name);
             }
+
+            // Airlines fund the registration fee
+            let payment = new BigNumber(web3.utils.toWei('10', "ether"));
+            await config.flightSuretyApp.methods.fundAirlineRegistration({
+                from: this.airlines[i],
+                value: payment
+            });
    
         }
 
