@@ -86,7 +86,7 @@ Deploy the contents of the ./dapp folder
     * Change 'webpack-cli/bin/convert-argv' to 'webpack-cli/bin/utils/convert-argv'
     * Reference: https://github.com/webpack/webpack-dev-server/issues/2029
 
-* Fix the error "'Support for the experimental syntax 'classProperties' isn't currently enabled' and 'Add @babel/plugin-proposal-class-properties (https://git.io/vb4SL) to the 'plugins' section of your Babel config to enable transformation.'"
+* Fix the error "'Support for the experimental syntax 'classProperties' isn't currently enabled' and 'Add @babel/plugin-proposal-class-properties (https://git.io/vb4SL) to the 'plugins' section of your Babel config to enable transformation.'" The error occurs when you execute the command `npm run dapp`
     * Create a .babelrc file at the top of the project
     * Add the following to the new .babelrc file
     {
