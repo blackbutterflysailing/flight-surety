@@ -74,7 +74,7 @@ Deploy the contents of the ./dapp folder
 * [Web3Js Reference](https://github.com/ethereum/wiki/wiki/JavaScript-API)
 
 ## Cautionary Tales
-* Make sure that all the contracts have the right pragma amond the contracts of
+* Make sure that all the contracts have the right pragma among the contracts of
     * FlightSuretyApp
     * FlightSuretyData
     * Migrations
@@ -85,3 +85,13 @@ Deploy the contents of the ./dapp folder
     * Change 'webpack-cli/bin/config-yargs' to 'webpack-cli/bin/config/config-yargs'
     * Change 'webpack-cli/bin/convert-argv' to 'webpack-cli/bin/utils/convert-argv'
     * Reference: https://github.com/webpack/webpack-dev-server/issues/2029
+
+* Fix the error "'Support for the experimental syntax 'classProperties' isn't currently enabled' and 'Add @babel/plugin-proposal-class-properties (https://git.io/vb4SL) to the 'plugins' section of your Babel config to enable transformation.'"
+    * Create a .babelrc file at the top of the project
+    * Add the following to the new .babelrc file
+    {
+    "presets": ["@babel/env"],
+    "plugins": [
+      "@babel/plugin-proposal-class-properties"
+    ]
+  }
