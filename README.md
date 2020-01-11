@@ -95,3 +95,21 @@ Deploy the contents of the ./dapp folder
       "@babel/plugin-proposal-class-properties"
     ]
   }
+
+* Fix the error "'Error: the tx doesn't have the correct nonce. account has nonce of: 7 tx has nonce of: 6'"
+    * Modify the truffle-config.js
+    * Rename the development network to developmentOld
+    * Add the new development network configuration that does not have the provider HDWalletProvider
+        development: {
+      host: "127.0.0.1",
+      port: 8545,
+      network_id: "*",
+      gas: 6721975
+    },
+    developmentOld: {
+      provider: function() {
+        return new HDWalletProvider(mnemonic, "http://127.0.0.1:8545/", 0, 50, false);
+      },
+      network_id: '*',
+      gas: 9999998
+    }
