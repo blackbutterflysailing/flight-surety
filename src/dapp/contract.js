@@ -7,9 +7,9 @@ export default class Contract {
     constructor(network, callback) {
 
         let config = Config[network];
-        this.web3 = new Web3(new Web3.providers.HttpProvider(config.url));
-        this.flightSuretyApp = new this.web3.eth.Contract(FlightSuretyApp.abi, config.appAddress);
-        this.flightSuretyData = new this.web3.eth.Contract(FlightSuretyData.abi, config.dataAddress);
+        this.web3 = new Web3(new Web3.providers.HttpProvider(this.config.url));
+        this.flightSuretyApp = new this.web3.eth.Contract(FlightSuretyApp.abi, this.config.appAddress);
+        this.flightSuretyData = new this.web3.eth.Contract(FlightSuretyData.abi, this.config.dataAddress);
         this.initialize(callback);
         this.owner = null;
         this.airlines = [];
@@ -31,22 +31,22 @@ export default class Contract {
         this.passengers = accounts.slice(5, 9);
 
         // Authorize Contract Caller to Access Data Contract
-        await config.flightSuretyData.authorizeCaller.call(this.config.appAddress);
+        await this.config.flightSuretyData.authorizeCaller.call(this.config.appAddress);
 
         for (let i = 0; i < 4; i++) {
 
             // Register airline accounts
-            await config.flightSuretyApp.methods.registerAirline.call(this.airlines[i], this.airlineNames[i] + "Airlines", {from: this.owner, gas: 1500000});
-            isRegistered = await config.flightSuretyApp.methods.isAirlineRegistered(this.airlines[i]);
+            await this.config.flightSuretyApp.methods.registerAirline.call(this.airlines[i], this.airlineNames[i] + "Airlines", {from: this.owner, gas: 1500000});
+            isRegistered = await this.config.flightSuretyApp.methods.isAirlineRegistered(this.airlines[i]);
             
             if (isRegistered) {
-                airline = await config.flightSuretyApp.methods.getAirline.call(this.airlines[i]);
+                airline = await this.config.flightSuretyApp.methods.getAirline.call(this.airlines[i]);
                 console.log("Airline " + airline.name);
             }
 
             // Airlines fund the registration fee
             let payment = new BigNumber(web3.utils.toWei('10', "ether"));
-            await config.flightSuretyApp.methods.fundAirlineRegistration({
+            await this.config.flightSuretyApp.methods.fundAirlineRegistration({
                 from: this.airlines[i],
                 value: payment
             });
