@@ -62,14 +62,14 @@ export default class Contract {
    
             // Create flight names
             this.flightNames.push(this.generate_random_string(2) + this.getRandomNumber(1000, 9999).toString());
-            console.log("Created flight names " + flightNames);
+            console.log("Created flight names " + this.flightNames);
 
             // Create flights
-            currentDate = new Date();
+            this.currentDate = new Date();
             this.flights[this.flightNames[i]] = {
                 name: this.flightNames[i],
                 airlineAddress: this.airlines[i],
-                departure: Math.floor(new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDay(), currentDate.getHours() + i, currentDate.getMinutes(), currentDate.getSeconds(), currentDate.getMilliseconds()) / 1000),
+                departure: Math.floor(new Date(this.currentDate.getFullYear(), this.currentDate.getMonth(), this.currentDate.getDay(), this.currentDate.getHours() + i, this.currentDate.getMinutes(), this.currentDate.getSeconds(), this.currentDate.getMilliseconds()) / 1000),
             }
         }
 
@@ -113,7 +113,7 @@ export default class Contract {
     }
 
     getRandomNumber(min, max) {
-        return Math.random() * (max - min) + min;
+        return Math.trunc(Math.random() * (max - min) + min);
     }
 
     generate_random_string(string_length){
