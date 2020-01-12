@@ -13,6 +13,7 @@ export default class Contract {
         this.owner = null;
         this.airlines = [];
         this.airlineNames = ["England", "France", "Germany", "Spain"];
+        this.flightNames = [];
         this.passengers = [];
         this.flights = {};
     }
@@ -49,6 +50,9 @@ export default class Contract {
                 value: payment
             });
    
+            //Create flight names
+            this.flightNames.push(generate_random_string(2) + getRandomNumber(1000, 9999).toString());
+            console.log("Created flight names " + flightNames);
         }
 
         // this.web3.eth.getAccounts((error, accts) => {
@@ -89,4 +93,21 @@ export default class Contract {
                 callback(error, payload);
             });
     }
+
+    getRandomNumber(min, max) {
+        return Math.random() * (max - min) + min;
+    }
+
+    generate_random_string(string_length){
+        let random_string = '';
+        let random_ascii;
+        for(let i = 0; i < string_length; i++) {
+            random_ascii = Math.floor((Math.random() * 25) + 97);
+            random_string += String.fromCharCode(random_ascii)
+        }
+        return random_string
+    }
+
+    //console.log(generate_random_string(5))
+
 }
