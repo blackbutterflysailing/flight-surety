@@ -67,7 +67,7 @@ export default class Contract {
             try {
                 this.isRegistered = await this.flightSuretyApp.methods.isAirlineRegistered(this.airlines[i]).call();
             } catch (e) {
-                console.log(`Error calling isAirlineRegistered, address: ${this.airlines[i]}\n${e.message}`)
+                console.log(`Error calling isAirlineRegistered 1, address: ${this.airlines[i]}\n${e.message}`)
             }
             
             console.log("this.isRegistered=" + this.isRegistered);
@@ -88,15 +88,24 @@ export default class Contract {
                 gas: 1500000
             });
 
+            // Register flights
+            try {
+                this.isRegistered = await this.flightSuretyApp.methods.registerFlight(this.flights[this.flightNames[i]].name, this.flights[this.flightNames[i]].departure)
+                .send({from: this.airlines[i], gas: 1500000});
+            } catch (e) {
+                console.log(`Error calling isAirlineRegistered 2, address: ${this.airlines[i]}\n${e.message}`)
+            }
+
         }
+        callback();
     }
 
-    // isOperational(callback) {
-    //    let self = this;
-    //    self.flightSuretyApp.methods
-    //         .isOperational()
-    //         .call({ from: self.owner}, callback);
-    // }
+    isOperational(callback) {
+       let self = this;
+       self.flightSuretyApp.methods
+            .isOperational()
+            .call({ from: self.owner}, callback);
+    }
 
     // fetchFlightStatus(flight, callback) {
     //     let self = this;
