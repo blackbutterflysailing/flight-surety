@@ -161,7 +161,9 @@ contract FlightSuretyApp {
         view
         returns(bool)
     {
-        return flightSuretyData.isAirlineRegistered(airlineAddress);
+        return(
+            flightSuretyData.getAirlineState(airlineAddress) == FlightSuretyData.AirlineState.Registered
+            );
     }
 
     function isAirlineMember(address airlineAddress)
