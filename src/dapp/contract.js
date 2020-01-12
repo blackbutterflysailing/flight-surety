@@ -7,9 +7,9 @@ export default class Contract {
     constructor(network, callback) {
 
         let config = Config[network];
-        this.web3 = new Web3(new Web3.providers.HttpProvider(this.config.url));
-        this.flightSuretyApp = new this.web3.eth.Contract(FlightSuretyApp.abi, this.config.appAddress);
-        this.flightSuretyData = new this.web3.eth.Contract(FlightSuretyData.abi, this.config.dataAddress);
+        this.web3 = new Web3(new Web3.providers.HttpProvider(config.url));
+        this.flightSuretyApp = new this.web3.eth.Contract(FlightSuretyApp.abi, config.appAddress);
+        this.flightSuretyData = new this.web3.eth.Contract(FlightSuretyData.abi, config.dataAddress);
         this.initialize(callback);
         this.owner = null;
         this.airlines = [];
@@ -51,9 +51,17 @@ export default class Contract {
                 value: payment
             });
    
-            //Create flight names
+            // Create flight names
             this.flightNames.push(generate_random_string(2) + getRandomNumber(1000, 9999).toString());
             console.log("Created flight names " + flightNames);
+
+            // Create flights
+            currentDate = new Date();
+            this.flights[this.flightNames[i]] = {
+                name: this.flightNames[i],
+                airlineAddress: this.airlines[i],
+                departure: Math.floor(new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDay(), currentDate.getHours() + i, currentDate.getMinutes(), currentDate.getSeconds(), currentDate.getMilliseconds()) / 1000),
+            }
         }
 
         // this.web3.eth.getAccounts((error, accts) => {
