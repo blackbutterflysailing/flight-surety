@@ -31,7 +31,7 @@ export default class Contract {
         this.passengers = accounts.slice(5, 9);
 
         // Authorize Contract Caller to Access Data Contract
-        await this.config.flightSuretyData.authorizeCaller.call(this.config.appAddress);
+        await this.flightSuretyData.authorizeCaller.call(this.config.appAddress);
 
         for (let i = 0; i < 4; i++) {
 
