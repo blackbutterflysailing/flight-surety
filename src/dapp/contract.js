@@ -6,10 +6,10 @@ import Web3 from 'web3';
 export default class Contract {
     constructor(network, callback) {
 
-        let config = Config[network];
-        this.web3 = new Web3(new Web3.providers.HttpProvider(config.url));
-        this.flightSuretyApp = new this.web3.eth.Contract(FlightSuretyApp.abi, config.appAddress);
-        this.flightSuretyData = new this.web3.eth.Contract(FlightSuretyData.abi, config.dataAddress);
+        this.config = Config[network];
+        this.web3 = new Web3(new Web3.providers.HttpProvider(this.config.url));
+        this.flightSuretyApp = new this.web3.eth.Contract(FlightSuretyApp.abi, this.config.appAddress);
+        this.flightSuretyData = new this.web3.eth.Contract(FlightSuretyData.abi, this.config.dataAddress);
         this.initialize(callback);
         this.owner = null;
         this.airlines = [];
@@ -17,11 +17,15 @@ export default class Contract {
         this.flightNames = [];
         this.passengers = [];
         this.flights = {};
+        console.log("Constructor this.config=" + this.config);
+        console.log("Constructor this.config.appAddress=" + this.config.appAddress);
     }
 
     async initialize(callback) {
         let accounts = await this.web3.eth.getAccounts();
-
+        console.log("initialize this.config=" + this.config);
+        console.log("initialize this.config.appAddress=" + this.config.appAddress);
+ 
         this.owner = accounts[0];
 
         // Set up four airline accounts
@@ -31,6 +35,10 @@ export default class Contract {
         this.passengers = accounts.slice(5, 9);
 
         // Authorize Contract Caller to Access Data Contract
+        //console.log("config=" + config);
+        //console.log("config.appAddress=" + config.appAddress);
+        console.log("this.config=" + this.config);
+        console.log("this.config.appAddress=" + this.config.appAddress);
         await this.flightSuretyData.methods.authorizeCaller(this.config.appAddress);
 
         for (let i = 0; i < 4; i++) {
