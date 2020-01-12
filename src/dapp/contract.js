@@ -39,13 +39,25 @@ export default class Contract {
         //console.log("config.appAddress=" + config.appAddress);
         console.log("this.config=" + this.config);
         console.log("this.config.appAddress=" + this.config.appAddress);
-        await this.flightSuretyData.methods.authorizeCaller(this.config.appAddress);
+        await this.flightSuretyData.methods.authorizeCaller(this.config.appAddress).send({from: this.owner});
 
         for (let i = 0; i < 4; i++) {
 
-            // Register airline accounts
-            // await this.flightSuretyApp.methods.registerAirline.call(this.airlines[i], this.airlineNames[i] + "Airlines", {from: this.owner, gas: 1500000});
-            // let isRegistered = await this.flightSuretyApp.methods.isAirlineRegistered(this.airlines[i]).call();
+       // Create flight names
+       this.flightNames.push(this.generate_random_string(2) + this.getRandomNumber(1000, 9999).toString());
+       console.log("Created flight names " + this.flightNames);
+
+       // Create flights
+       this.currentDate = new Date();
+       this.flights[this.flightNames[i]] = {
+           name: this.flightNames[i],
+           airlineAddress: this.airlines[i],
+           departure: Math.floor(new Date(this.currentDate.getFullYear(), this.currentDate.getMonth(), this.currentDate.getDay(), this.currentDate.getHours() + i, this.currentDate.getMinutes(), this.currentDate.getSeconds(), this.currentDate.getMilliseconds()) / 1000),
+       }
+
+       // Register airline accounts
+            await this.flightSuretyApp.methods.registerAirline.call(this.airlines[i], this.airlineNames[i] + "Airlines", {from: this.owner, gas: 1500000});
+            let isRegistered = await this.flightSuretyApp.methods.isAirlineRegistered(this.airlines[i]).call();
             
             // if (isRegistered) {
             //     airline = await this.flightSuretyApp.methods.getAirline(this.airlines[i]).call();
@@ -60,57 +72,29 @@ export default class Contract {
             //     gas: 1500000
             // });
    
-            // Create flight names
-            this.flightNames.push(this.generate_random_string(2) + this.getRandomNumber(1000, 9999).toString());
-            console.log("Created flight names " + this.flightNames);
-
-            // Create flights
-            this.currentDate = new Date();
-            this.flights[this.flightNames[i]] = {
-                name: this.flightNames[i],
-                airlineAddress: this.airlines[i],
-                departure: Math.floor(new Date(this.currentDate.getFullYear(), this.currentDate.getMonth(), this.currentDate.getDay(), this.currentDate.getHours() + i, this.currentDate.getMinutes(), this.currentDate.getSeconds(), this.currentDate.getMilliseconds()) / 1000),
-            }
-        }
-
-        // this.web3.eth.getAccounts((error, accts) => {
-           
-        //     this.owner = accts[0];
-
-        //     let counter = 1;
-            
-        //     while(this.airlines.length < 5) {
-        //         this.airlines.push(accts[counter++]);
-        //     }
-
-        //     while(this.passengers.length < 5) {
-        //         this.passengers.push(accts[counter++]);
-        //     }
-
-        //     callback();
-        // });
+             }
     }
 
-    isOperational(callback) {
-       let self = this;
-       self.flightSuretyApp.methods
-            .isOperational()
-            .call({ from: self.owner}, callback);
-    }
+    // isOperational(callback) {
+    //    let self = this;
+    //    self.flightSuretyApp.methods
+    //         .isOperational()
+    //         .call({ from: self.owner}, callback);
+    // }
 
-    fetchFlightStatus(flight, callback) {
-        let self = this;
-        let payload = {
-            airline: self.airlines[0],
-            flight: flight,
-            timestamp: Math.floor(Date.now() / 1000)
-        } 
-        self.flightSuretyApp.methods
-            .fetchFlightStatus(payload.airline, payload.flight, payload.timestamp)
-            .send({ from: self.owner}, (error, result) => {
-                callback(error, payload);
-            });
-    }
+    // fetchFlightStatus(flight, callback) {
+    //     let self = this;
+    //     let payload = {
+    //         airline: self.airlines[0],
+    //         flight: flight,
+    //         timestamp: Math.floor(Date.now() / 1000)
+    //     } 
+    //     self.flightSuretyApp.methods
+    //         .fetchFlightStatus(payload.airline, payload.flight, payload.timestamp)
+    //         .send({ from: self.owner}, (error, result) => {
+    //             callback(error, payload);
+    //         });
+    // }
 
     getRandomNumber(min, max) {
         return Math.trunc(Math.random() * (max - min) + min);
@@ -123,7 +107,7 @@ export default class Contract {
             random_ascii = Math.floor((Math.random() * 25) + 97);
             random_string += String.fromCharCode(random_ascii)
         }
-        return random_string
+        return random_string.toUpperCase();
     }
 
     //console.log(generate_random_string(5))
