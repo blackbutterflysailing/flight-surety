@@ -44,7 +44,7 @@ export default class Contract {
         for (let i = 0; i < 4; i++) {
 
             // Register airline accounts
-            await this.config.flightSuretyApp.methods.registerAirline.call(this.airlines[i], this.airlineNames[i] + "Airlines", {from: this.owner, gas: 1500000});
+            await this.flightSuretyApp.methods.registerAirline.call(this.airlines[i], this.airlineNames[i] + "Airlines", {from: this.owner, gas: 1500000});
             isRegistered = await this.config.flightSuretyApp.methods.isAirlineRegistered(this.airlines[i]);
             
             if (isRegistered) {
