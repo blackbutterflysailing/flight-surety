@@ -2,6 +2,8 @@ import FlightSuretyApp from '../../build/contracts/FlightSuretyApp.json';
 import FlightSuretyData from '../../build/contracts/FlightSuretyData.json';
 import Config from './config.json';
 import Web3 from 'web3';
+var BigNumber = require('bignumber.js');
+
 
 export default class Contract {
     constructor(network, callback) {
@@ -43,36 +45,50 @@ export default class Contract {
 
         for (let i = 0; i < 4; i++) {
 
-       // Create flight names
-       this.flightNames.push(this.generate_random_string(2) + this.getRandomNumber(1000, 9999).toString());
-       console.log("Created flight names " + this.flightNames);
+            // Create flight names
+            this.flightNames.push(this.generate_random_string(2) + this.getRandomNumber(1000, 9999).toString());
+            console.log("Created flight names " + this.flightNames);
 
-       // Create flights
-       this.currentDate = new Date();
-       this.flights[this.flightNames[i]] = {
-           name: this.flightNames[i],
-           airlineAddress: this.airlines[i],
-           departure: Math.floor(new Date(this.currentDate.getFullYear(), this.currentDate.getMonth(), this.currentDate.getDay(), this.currentDate.getHours() + i, this.currentDate.getMinutes(), this.currentDate.getSeconds(), this.currentDate.getMilliseconds()) / 1000),
-       }
+            // Create flights
+            this.currentDate = new Date();
+            this.flights[this.flightNames[i]] = {
+                name: this.flightNames[i],
+                airlineAddress: this.airlines[i],
+                departure: Math.floor(new Date(this.currentDate.getFullYear(), this.currentDate.getMonth(), this.currentDate.getDay(), this.currentDate.getHours() + i, this.currentDate.getMinutes(), this.currentDate.getSeconds(), this.currentDate.getMilliseconds()) / 1000),
+            }
 
-       // Register airline accounts
-            await this.flightSuretyApp.methods.registerAirline.call(this.airlines[i], this.airlineNames[i] + "Airlines", {from: this.owner, gas: 1500000});
-            let isRegistered = await this.flightSuretyApp.methods.isAirlineRegistered(this.airlines[i]).call();
+            // Register airline accounts
+            console.log("this.airlines[" + i + "]=" + this.airlines[i]);
+            try {
+                await this.flightSuretyApp.methods.registerAirline(this.airlines[i], this.airlineNames[i]).send({from: this.owner, gas: 1500000});
+            } catch (e) {
+                console.log(`Error while registring new airline, address: ${this.airlines[i]}\n${e.message}`)
+            }
+            try {
+                this.isRegistered = await this.flightSuretyApp.methods.isAirlineRegistered(this.airlines[i]).call();
+            } catch (e) {
+                console.log(`Error calling isAirlineRegistered, address: ${this.airlines[i]}\n${e.message}`)
+            }
             
-            // if (isRegistered) {
-            //     airline = await this.flightSuretyApp.methods.getAirline(this.airlines[i]).call();
-            //     console.log("Airline " + airline.name);
-            // }
+            console.log("this.isRegistered=" + this.isRegistered);
+
+            try {
+                this.airline = await this.flightSuretyApp.methods.getAirline(this.airlines[i]).call();
+                console.log("Airline " + this.airline.name + "-" + this.airline.airlineState + " isValue=" + this.airline.isValue);
+            } catch (e) {
+                console.log(`Error calling this, address: ${this.airlines[i]}\n${e.message}`)
+            }
+
 
             // Airlines fund the registration fee
-            // let payment = new BigNumber(web3.utils.toWei('10', "ether"));
-            // await this.config.flightSuretyApp.methods.fundAirlineRegistration({
-            //     from: this.airlines[i],
-            //     value: payment,
-            //     gas: 1500000
-            // });
-   
-             }
+            let payment = new BigNumber(this.web3.utils.toWei('10', "ether"));
+            await this.flightSuretyApp.methods.fundAirlineRegistration().send({
+                from: this.airlines[i],
+                value: payment,
+                gas: 1500000
+            });
+
+        }
     }
 
     // isOperational(callback) {
