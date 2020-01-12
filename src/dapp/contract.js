@@ -44,23 +44,24 @@ export default class Contract {
         for (let i = 0; i < 4; i++) {
 
             // Register airline accounts
-            await this.flightSuretyApp.methods.registerAirline.call(this.airlines[i], this.airlineNames[i] + "Airlines", {from: this.owner, gas: 1500000});
-            isRegistered = await this.config.flightSuretyApp.methods.isAirlineRegistered(this.airlines[i]);
+            // await this.flightSuretyApp.methods.registerAirline.call(this.airlines[i], this.airlineNames[i] + "Airlines", {from: this.owner, gas: 1500000});
+            // let isRegistered = await this.flightSuretyApp.methods.isAirlineRegistered(this.airlines[i]).call();
             
-            if (isRegistered) {
-                airline = await this.config.flightSuretyApp.methods.getAirline.call(this.airlines[i]);
-                console.log("Airline " + airline.name);
-            }
+            // if (isRegistered) {
+            //     airline = await this.flightSuretyApp.methods.getAirline(this.airlines[i]).call();
+            //     console.log("Airline " + airline.name);
+            // }
 
             // Airlines fund the registration fee
-            let payment = new BigNumber(web3.utils.toWei('10', "ether"));
-            await this.config.flightSuretyApp.methods.fundAirlineRegistration({
-                from: this.airlines[i],
-                value: payment
-            });
+            // let payment = new BigNumber(web3.utils.toWei('10', "ether"));
+            // await this.config.flightSuretyApp.methods.fundAirlineRegistration({
+            //     from: this.airlines[i],
+            //     value: payment,
+            //     gas: 1500000
+            // });
    
             // Create flight names
-            this.flightNames.push(generate_random_string(2) + getRandomNumber(1000, 9999).toString());
+            this.flightNames.push(this.generate_random_string(2) + this.getRandomNumber(1000, 9999).toString());
             console.log("Created flight names " + flightNames);
 
             // Create flights
