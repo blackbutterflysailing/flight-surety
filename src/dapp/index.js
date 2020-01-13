@@ -44,6 +44,19 @@ import './flightsurety.css';
     
     });
     
+    DOM.elid('withdraw-insurance').addEventListener('click', async() => {
+        let flight = DOM.elid('flight-number').value;
+        let ticket = DOM.elid('ticket-number').value;
+        // Write transaction
+        await contract.withdrawCredit(flight, (error, result) => {
+            display(
+                'Insurance', 'Insurance credit withdrow', 
+                [ 
+                    { label: 'Flight number', error: error, value: result.flight.name + ' ' + result.flight.departure }, 
+                ]
+            );
+        });
+    })
 
 })();
 
