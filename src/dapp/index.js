@@ -18,6 +18,20 @@ import './flightsurety.css';
             display('Operational Status', 'Check if contract is operational', [ { label: 'Operational Status', error: error, value: result} ]);
         });
     
+        DOM.elid('buy-insurance').addEventListener('click', async () => {
+            let flight = DOM.elid('flight-number').value;
+            let amount = DOM.elid('purchase-amount').value;
+            // Write transaction
+            await contract.purchaseFlightInsurance(flight, amount, (error, result) => {
+                display(
+                    'Insurance', 'Insurance purchase',
+                    [
+                        { label: 'Flight number', error: error, value: result.flight.name + ' ' + result.flight.departure },
+                    ]
+                );
+
+            });
+        })
 
         // User-submitted transaction
         DOM.elid('submit-oracle').addEventListener('click', () => {
