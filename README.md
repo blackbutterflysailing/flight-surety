@@ -113,3 +113,8 @@ Deploy the contents of the ./dapp folder
       network_id: '*',
       gas: 9999998
     }
+
+* Fix the smart contract error "Returned values aren't valid, did it run Out of Gas?"
+  * Delete the build/contracts folder
+  * Type the ccommand `truffle migrate`
+  
