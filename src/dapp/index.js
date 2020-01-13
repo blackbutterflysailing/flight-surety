@@ -11,6 +11,8 @@ import './flightsurety.css';
     let contract = new Contract('localhost', () => {
 
         // Read transaction
+        console.log("call contract.isOperational");
+
         contract.isOperational((error, result) => {
             console.log(error,result);
             display('Operational Status', 'Check if contract is operational', [ { label: 'Operational Status', error: error, value: result} ]);
