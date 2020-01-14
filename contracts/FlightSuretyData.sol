@@ -360,6 +360,34 @@ function setAirline
                                                     insuranceState: InsuranceState.Purchased});
     }
 
+
+  /**
+    * @dev Buy insurance for a flight
+    *
+    */
+    function getInsurance(bytes32 insuranceKey)
+        external
+        view
+        returns(
+            address buyer,
+            address airline,
+            uint value,
+            bool isValue,
+            InsuranceState insuranceState
+        )
+   {
+       Insurance memory insurance = passengerInsurances[insuranceKey];
+        return(
+            insurance.buyer,
+            insurance.airline,
+            insurance.value,
+            insurance.isValue,
+            insurance.insuranceState
+        );
+
+   }
+
+
     /**
      *  @dev Credits payouts to insurees
     */

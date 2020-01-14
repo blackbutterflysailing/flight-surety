@@ -52,6 +52,7 @@ contract FlightSuretyApp {
     event AirlineVotesRequired(address airlineAddress);
     event AirlineDeniedRegistration(address airlineAddress);
     event FlightInsurancePurchased(address airlineAddress, address passengerAddress, string flightName);
+    event FlightInsurancePaidOut(address airlineAddress, address passengerAddress, uint payout, string flightName);
 
 
     /********************************************************************************************/
@@ -385,7 +386,32 @@ contract FlightSuretyApp {
 
         emit FlightInsurancePurchased(airlineAddress, msg.sender, flightName);
     }
-// region ORACLE MANAGEMENT
+
+        function withdrawCredit
+    (
+        address airlineAddress,
+        string calldata flightName,
+        uint256 departure
+    )
+        external
+        requireIsOperational
+    {
+        bytes32 flightKey = getFlightKey(airlineAddress, flightName, departure);
+        bytes32 insuranceKey = getInsuranceKey(msg.sender, flightKey);
+
+        (
+            address buyer,
+            ,
+            uint value,
+            ,
+
+        ) = flightSuretyData.getInsurance(insuranceKey);
+
+        flightSuretyData.payoutInsuree(insuranceKey);
+        emit FlightInsurancePaidOut(airlineAddress, buyer, value, flightName);
+    }
+
+    // region ORACLE MANAGEMENT
 
     // Incremented to add pseudo-randomness at various points
     uint8 private nonce = 0;
@@ -508,14 +534,21 @@ contract FlightSuretyApp {
                             string memory flight,
                             uint256 timestamp
                         )
-                        pure
                         internal
-                        returns(bytes32) 
+                        pure
+                        returns(bytes32)
     {
         return keccak256(abi.encodePacked(airline, flight, timestamp));
     }
 
-    // Returns array of three non-duplicating integers from 0-9
+    function getInsuranceKey(address passenger, bytes32 flightKey)
+        internal
+        pure
+        returns(bytes32)
+    {
+        return keccak256(abi.encodePacked(passenger, flightKey));
+    }
+        // Returns array of three non-duplicating integers from 0-9
     function generateIndexes
                             (                       
                                 address account         
