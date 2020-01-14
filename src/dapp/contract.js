@@ -16,7 +16,7 @@ export default class Contract {
         this.owner = null;
         this.airlines = [];
         this.airlineNames = ["England", "France", "Germany", "Spain"];
-        this.flightNames = [];
+        this.flightNames = ["KY3215", "AB2117", "GC1997", "YA3579"];
         this.passengers = [];
         this.flights = {};
         console.log("Constructor this.config=" + this.config);
@@ -43,11 +43,12 @@ export default class Contract {
         console.log("this.config.appAddress=" + this.config.appAddress);
         await this.flightSuretyData.methods.authorizeCaller(this.config.appAddress).send({from: this.owner});
 
-        for (let i = 0; i < 4; i++) {
+        // Create flight names
+        //this.flightNames.push(this.generate_random_string(2) + this.getRandomNumber(1000, 9999).toString());
+        console.log("Created flight names " + this.flightNames);
 
-            // Create flight names
-            this.flightNames.push(this.generate_random_string(2) + this.getRandomNumber(1000, 9999).toString());
-            console.log("Created flight names " + this.flightNames);
+
+        for (let i = 0; i < 4; i++) {
 
             // Create flights
             this.currentDate = new Date();
@@ -58,6 +59,7 @@ export default class Contract {
             }
 
             // Register airline accounts
+            console.log("this.flights[" + this.flightNames[i] + "]=" + this.flights[this.flightNames[i]]);
             console.log("this.airlines[" + i + "]=" + this.airlines[i]);
             try {
                 await this.flightSuretyApp.methods.registerAirline(this.airlines[i], this.airlineNames[i]).send({from: this.owner, gas: 1500000});
