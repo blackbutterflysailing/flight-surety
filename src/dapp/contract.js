@@ -107,7 +107,7 @@ export default class Contract {
             .call({ from: self.owner}, callback);
     }
 
-    fetchFlightStatus(flight, callback) {
+    fetchFlightStatus(flightName, callback) {
         let self = this;
         self.flightSuretyApp.methods
         .fetchFlightStatus(
@@ -123,10 +123,10 @@ export default class Contract {
        
         this.flightSuretyApp.methods
         .purchaseFlightInsurance(
+            self.passengers[0],
             self.flights[flightName].airlineAddress,
             self.flights[flightName].name,
-            self.flights[flightName].departure,
-            ticketNumber
+            self.flights[flightName].departure
         )
         .send({
             from: self.passengers[0],
@@ -134,6 +134,21 @@ export default class Contract {
             gass: 1500000,
         }, (err, res) => callback(err, {flight: self.flights[flightName], ticket: ticketNumber}));
         
+    }
+
+    withdrawCredit(flightName, callback) {
+        let self = this;
+        
+        this.flightSuretyApp.methods
+        .withdrawCredit(
+            self.flights[flightName].airlineAddress,
+            self.flights[flightName].name,
+            self.flights[flightName].departure
+        )
+        .send({
+            from: self.passengers[0],
+            gass: 1500000,
+        }, (err, res) => callback(err, {flight: self.flights[flightName]}));
     }
 
     getRandomNumber(min, max) {
