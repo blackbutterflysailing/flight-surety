@@ -24,7 +24,6 @@ contract FlightSuretyApp {
     uint8 private constant STATUS_CODE_LATE_WEATHER = 30;
     uint8 private constant STATUS_CODE_LATE_TECHNICAL = 40;
     uint8 private constant STATUS_CODE_LATE_OTHER = 50;
-    uint256 public constant MIN_FUNDING_AMOUNT = 10 ether;
 
     // Account used to deploy contract
     address private contractOwner;
@@ -90,17 +89,6 @@ contract FlightSuretyApp {
     modifier requireCallerAuthorized
     {
         require(flightSuretyData.isCallerAuthorized(msg.sender) == true, "Contract Caller is not authorized to call this function");
-        _;
-    }
-
-   modifier requireDidCallerAirlineDepositFunds()
-    {
-        bool funded = false;
-        uint funds = flightSuretyData.getAirlineFunds(msg.sender);
-        if(funds >= MIN_FUNDING_AMOUNT)
-            funded = true;
-
-        require(funded == true, "Airline can not participate in contract until it submits 10 ether");
         _;
     }
 
@@ -233,28 +221,8 @@ contract FlightSuretyApp {
     /********************************************************************************************/
     /*                                     SMART CONTRACT FUNCTIONS                             */
     /********************************************************************************************/
-    function getNewAirlines()
-                             public
-                             view
-                             requireIsOperational
-                            returns(address[] memory)
-        {
-         return flightSuretyData.getAirlines();
-        }
 
-    function getAirlineFunds
-        (
-        address airline
-        )
-            public
-            view
-            requireIsOperational
-        returns(uint funds)
-    {
-        return flightSuretyData.getAirlineFunds(airline);
-    }
-
-   /**
+    /**
     * @dev Add an airline to the registration queue
     *
     */
@@ -419,15 +387,6 @@ contract FlightSuretyApp {
         emit FlightInsurancePurchased(airlineAddress, msg.sender, flightName);
     }
 
-        function getBalance()
-                            public
-                            view
-                            requireIsOperational
-                            returns(uint funds)
-        {
-            return flightSuretyData.getPassengerFunds(msg.sender);
-        }
-
         function withdrawCredit
     (
         address airlineAddress,
@@ -450,23 +409,6 @@ contract FlightSuretyApp {
 
         flightSuretyData.payoutInsuree(insuranceKey);
         emit FlightInsurancePaidOut(airlineAddress, buyer, value, flightName);
-    }
-
-        /**
-    * @dev add funds for airline.
-    *
-    */
-    function AirlineFunding
-                            (
-                            )
-                            public
-                            payable
-                            requireIsOperational
-                            requireAirlineRegistered(msg.sender)
-    {
-        // Transfer Fund to Data Contract
-        address(flightSuretyData).transfer(msg.value);
-        flightSuretyData.fundAirline(msg.sender,msg.value);
     }
 
     // region ORACLE MANAGEMENT

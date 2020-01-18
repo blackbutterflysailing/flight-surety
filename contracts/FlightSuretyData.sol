@@ -18,10 +18,6 @@ contract FlightSuretyData {
     // Addresses that can call this contract
     mapping(address => bool) private  authorizedContractCaller;
 
-    //passenger => amount
-    mapping(address => uint) private accountBalance;
-
-    mapping (address => uint) private fundedAirlines;
 
     // fund balance
     uint256 fundBalance = 0;
@@ -73,8 +69,6 @@ contract FlightSuretyData {
     mapping (address => Airline) private airlines;
     mapping (bytes32 =>  bytes32[]) private flightInsurances;
     mapping (bytes32 => Insurance) private passengerInsurances;
-    address[] newAirlines;
-
     /********************************************************************************************/
     /*                                       EVENT DEFINITIONS                                  */
     /********************************************************************************************/
@@ -86,21 +80,15 @@ contract FlightSuretyData {
     * @dev Constructor
     *      The deploying account becomes contractOwner
     */
-    constructor(
-        address firstAirline
-    )
-        public
-        payable
+    constructor() public payable
     {
         contractOwner = msg.sender;
-        newAirlines.push(firstAirline);
 
         // Register airline
              setAirline(
-            firstAirline,
-            "AirABA", AirlineState.Funded
+            msg.sender,
+            "American Flyer", AirlineState.Funded
         );
-
     }
 
     /********************************************************************************************/
@@ -139,11 +127,6 @@ contract FlightSuretyData {
         _;
     }
 
-     modifier requireCallerAirlineRegistered(address caller)
-    {
-        require(airlines[caller].isValue == true, "Caller not registered");
-        _;
-    }
     /********************************************************************************************/
     /*                                       UTILITY FUNCTIONS                                  */
     /********************************************************************************************/
@@ -172,14 +155,6 @@ contract FlightSuretyData {
                             requireContractOwner
     {
         operational = mode;
-    }
-
-    function getAirlines()
-                external
-                view
-                returns(address[] memory)
-    {
-        return newAirlines;
     }
 
    /**
@@ -255,31 +230,12 @@ contract FlightSuretyData {
         authorizedContractCaller[contractCallerAddress] = true;
     }
 
-   /**
-  * @dev to see how much fund an airline has
- */
-    function getAirlineFunds
-                            (
-                                address airline
-                            )
-                            external
-                            view
-                            requireIsOperational
-                            requireCallerAuthorized
-                            requireCallerAirlineRegistered(airline)
-                             returns(uint funds)
-    {
-        return (fundedAirlines[airline]);
-    }
-
     function fund(address fundPayer)
         public
         payable
     {
          airlines[fundPayer].airlineState = AirlineState.Funded;
         airlines[fundPayer].registerAmount = airlines[fundPayer].registerAmount + msg.value;
-
-        fundedAirlines[fundPayer] += msg.value;
 
         if (airlines[fundPayer].registerAmount >= airlineRegistrationFee) {
             airlines[fundPayer].airlineState = AirlineState.Funded;
@@ -289,23 +245,6 @@ contract FlightSuretyData {
 
         emit AirlinePayedFund(fundPayer, msg.value);
     }
-
-    /**
-    * @dev airline can deposit funds in any amount
-    */
-    function fundAirline
-        (
-            address airline,
-            uint amount
-        )
-        external
-        requireIsOperational
-        requireCallerAuthorized
-        requireCallerAirlineRegistered(airline)
-    {
-        fundedAirlines[airline] += amount;
-    }
-
 
     function isAirlineMember(address airlineAddress)
         external
@@ -419,7 +358,6 @@ function setAirline
                                                     value: insuranceCost,
                                                     isValue: true,
                                                     insuranceState: InsuranceState.Purchased});
-    
     }
 
 
@@ -489,27 +427,6 @@ function setAirline
         uint payoutValue = insurance.value;
         insurance.value = 0;
         buyer.transfer(payoutValue);
-        accountBalance[buyer] -= payoutValue;
-    }
-
-    function getPassengerFunds(address passenger)
-                external
-                view
-                returns(uint)
-    {
-        return accountBalance[passenger];
-    }
-
-    function withdrawPassengerFunds(uint amount,address passenger)
-                                    external
-                                    requireIsOperational
-                                    requireCallerAuthorized
-                                    returns(uint)
-    {
-        accountBalance[passenger] = accountBalance[passenger] - amount;
-        passenger.transfer(amount);
-
-        return accountBalance[passenger];
     }
 
     function getFlightKey
