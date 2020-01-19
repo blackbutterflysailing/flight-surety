@@ -4,11 +4,10 @@ const fs = require('fs');
 
 module.exports = async function(deployer, network, accounts) {
 
-    let firstAirline = accounts[1];
-    await deployer.deploy(FlightSuretyData);
-    const flightSuretyDataContract = await FlightSuretyData.deployed();
+    let firstAirline = "0xf17f52151ebef6c7334fad080c5704d77216b732";
+    await deployer.deploy(FlightSuretyData,firstAirline)
 
-    await deployer.deploy(FlightSuretyApp, flightSuretyDataContract.address);
+    await deployer.deploy(FlightSuretyApp, FlightSuretyData.address);
     const flightSuretyAppContract = await FlightSuretyApp.deployed();
 
     let config = {

@@ -24,6 +24,13 @@ contract FlightSuretyApp {
     uint8 private constant STATUS_CODE_LATE_WEATHER = 30;
     uint8 private constant STATUS_CODE_LATE_TECHNICAL = 40;
     uint8 private constant STATUS_CODE_LATE_OTHER = 50;
+    uint256 public constant FLIGHT_INSURANCE_FEE = 1 ether;
+
+   // Fee to be paid when registering oracle
+    uint256 public constant REGISTRATION_FEE = 1 ether;
+
+    // Fee to be paid when registering airline
+    uint public airlineRegistrationFee = 10 ether;
 
     // Account used to deploy contract
     address private contractOwner;
@@ -186,9 +193,17 @@ contract FlightSuretyApp {
         requireIsOperational
         requireContractOwner
     {
-        REGISTRATION_FEE = registrationCost;
+        airlineRegistrationFee = registrationCost;
     }
 
+    function getAirlineRegistrationCost()
+        external
+        view
+        requireIsOperational
+        returns(uint256)
+    {
+        return airlineRegistrationFee;
+    }
     /* @dev Set Insurance Percentage Amount
     *
     * 
@@ -208,7 +223,7 @@ contract FlightSuretyApp {
         requireContractOwner
         returns (uint)
     {
-        return REGISTRATION_FEE;
+        return airlineRegistrationFee;
     }
 
     function setAuthorizedAddress(address contractCallerAddress)
@@ -243,6 +258,18 @@ contract FlightSuretyApp {
             flightSuretyData.registerAirline(airlineAddress, airlineName, FlightSuretyData.AirlineState.VotesRequired);
             emit AirlineVotesRequired(airlineAddress);
        }
+    }
+
+    function getRegisteredAirlines
+                            (
+
+                            )
+                             public
+                             view
+                             requireIsOperational
+                            returns(address[] memory)
+    {
+        return flightSuretyData.getAirlines();
     }
 
     /**
@@ -287,9 +314,37 @@ contract FlightSuretyApp {
         flightSuretyData.fund.value(msg.value)(msg.sender);
     }
 
+    function getAirlineFunds
+        (
+        address airline
+        )
+            public
+            view
+            requireIsOperational
+        returns(uint funds)
+    {
+        return flightSuretyData.getAirlineFunds(airline);
+    }
+
+
     function registerFlight(string calldata flightName, uint256 scheduledDeparture)
         external
         requireIsOperational
+    {
+        bytes32 flightKey = getFlightKey(msg.sender, flightName, scheduledDeparture);
+
+        require(!flights[flightKey].isRegistered, "Flight has already been registered");
+
+        flights[flightKey] = Flight({airline: msg.sender,
+                                    name: flightName,
+                                    departure: scheduledDeparture,
+                                    isRegistered: true,
+                                    statusCode: STATUS_CODE_UNKNOWN,
+                                    updatedTimestamp: now});
+    }
+
+        function quickRegisterFlight(string memory flightName, uint256 scheduledDeparture)
+        internal
     {
         bytes32 flightKey = getFlightKey(msg.sender, flightName, scheduledDeparture);
 
@@ -317,6 +372,15 @@ contract FlightSuretyApp {
         return flightSuretyData.airlineInfo(airlineAddress);
     }
 
+    function getBalance()
+        public
+        view
+        requireIsOperational
+        returns(uint funds)
+    {
+        return flightSuretyData.getPassengerFunds(msg.sender);
+    }
+
    /**
     * @dev Called after oracle has updated flight status
     *
@@ -336,6 +400,20 @@ contract FlightSuretyApp {
         if (statusCode == STATUS_CODE_LATE_AIRLINE) {
             flightSuretyData.creditInsurees(flightKey, PAYOUT_RATE);
         }
+    }
+
+    function withdrawFunds
+    (
+        uint amount
+    )
+        public
+        requireIsOperational
+        returns(uint funds)
+    {
+        uint balance = flightSuretyData.getPassengerFunds(msg.sender);
+        require(amount <= balance, "Requested amount exceeds balance");
+
+        return flightSuretyData.withdrawPassengerFunds(amount,msg.sender);
     }
 
 
@@ -365,8 +443,7 @@ contract FlightSuretyApp {
     (
         address airlineAddress,
         string calldata flightName,
-        uint256 departureTime,
-        uint insuranceCost
+        uint256 departureTime
     )
         external
         payable
@@ -374,14 +451,21 @@ contract FlightSuretyApp {
     {
         bytes32 flightKey = getFlightKey(airlineAddress, flightName, departureTime);
 
-        require(flights[flightKey].isRegistered, "Flight has not been registered");
+        if (!flights[flightKey].isRegistered) {
+            quickRegisterFlight(flightName, departureTime);
+        }
+
+        require(msg.value > 0, "Insurance can accept more than 0");
+        
+        require(msg.value <= 1 ether, "Insurance can accept less than 1 ether");
+
 
         flightSuretyData.buyFlightInsurance.value(msg.value)(
             msg.sender,
             airlineAddress,
             flightName,
             departureTime,
-            insuranceCost
+            msg.value
         );
 
         emit FlightInsurancePurchased(airlineAddress, msg.sender, flightName);
@@ -416,9 +500,7 @@ contract FlightSuretyApp {
     // Incremented to add pseudo-randomness at various points
     uint8 private nonce = 0;
 
-    // Fee to be paid when registering oracle
-    uint256 public REGISTRATION_FEE = 1 ether;
-
+  
     // Credit rate paid to flight insurance holders
     uint private constant PAYOUT_RATE = 150;
 
@@ -458,6 +540,13 @@ contract FlightSuretyApp {
     event OracleRequest(uint8 index, address airline, string flight, uint256 timestamp);
 
 
+    function getOracleRegistrationFee()
+        external
+        pure
+        returns(uint256)
+    {
+        return REGISTRATION_FEE;
+    }
     // Register an oracle with the contract
     function registerOracle()
         external
@@ -549,16 +638,13 @@ contract FlightSuretyApp {
         return keccak256(abi.encodePacked(passenger, flightKey));
     }
         // Returns array of three non-duplicating integers from 0-9
-    function generateIndexes
-                            (                       
-                                address account         
-                            )
-                            internal
-                            returns(uint8[3] memory)
+    function generateIndexes(address account)
+        internal
+        returns(uint8[3] memory)
     {
         uint8[3] memory indexes;
         indexes[0] = getRandomIndex(account);
-        
+
         indexes[1] = indexes[0];
         while(indexes[1] == indexes[0]) {
             indexes[1] = getRandomIndex(account);

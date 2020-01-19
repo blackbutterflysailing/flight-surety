@@ -83,9 +83,11 @@ contract('Flight Surety Tests', async (accounts) => {
     it('(contract access) can block access for contracts that have not been authorized', async () => {
 
         // ARRANGE
-        let newAirline = config.airlinesByProxy[0];
+        let newAirline = config.airlinesByProxy[1];
+        let airlineByProxy0 = config.airlinesByProxy[0];
 
-        await config.flightSuretyApp.registerAirline.call(newAirline,"TestAirlineProxy0");
+
+        await config.flightSuretyApp.registerAirline.call(newAirline,"TestAirlineProxy0", {from: airlineByProxy0});
         let isFlightRegistered = await config.flightSuretyApp.isAirlineRegistered.call(newAirline);
  
         // ASSERT
@@ -114,38 +116,9 @@ contract('Flight Surety Tests', async (accounts) => {
         let result = await config.flightSuretyApp.isAirlineMember.call(config.firstAirline);
         
         // ASSERT
-        assert.equal(result, true, "First Airline was not registered");
+        assert.equal(result, true, "First Airline was not registered" + config.firstAirline);
 
     });   
-
-    it('(airline) cannot get airline that has not beeen registered', async () => {
-
-        // ARRANGE
-        let result = await config.flightSuretyApp.getAirline.call(config.airlinesByProxy[0]);
-        
-        // ASSERT
-        assert.equal(result.isValue, false, "Error airline should not have been found registered.");
-
-    });   
-  
-    it('(airline) cannot register an Airline using registerAirline() if it is not funded', async () => {
-    
-        // ARRANGE
-        let newAirline = config.airlinesByProxy[0];
-        let isError = false;
-
-        // ACT
-        await config.flightSuretyApp.registerAirline(newAirline, "TestProxy0");
-
-        let airline = await config.flightSuretyApp.getAirline.call(newAirline); 
-        let result = await config.flightSuretyApp.isAirlineMember.call(newAirline); 
-
-        // ASSERT
-        assert.equal(isError, false, "Error registering airline");
-        assert.equal(airline.name, "TestProxy0", "Airline is not registered." + airline.name);
-        assert.equal(result, false, "Airline should not be able to register another airline if it hasn't provided funding");
-
-    });
 
     it(`(airline) will be fully enabled after sending the registration amount to the contract`, async() => {
         assert(await config.flightSuretyApp.isAirlineMember.call(config.firstAirline), 'Airline is not funded')

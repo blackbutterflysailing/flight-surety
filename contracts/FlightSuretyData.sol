@@ -18,6 +18,10 @@ contract FlightSuretyData {
     // Addresses that can call this contract
     mapping(address => bool) private  authorizedContractCaller;
 
+    // passenger account balance
+    mapping(address => uint) private accountBalance;
+
+
 
     // fund balance
     uint256 fundBalance = 0;
@@ -58,7 +62,10 @@ contract FlightSuretyData {
         uint value;
         bool isValue;
         InsuranceState insuranceState;
+        string flightName;
     }
+
+    address[] registeredAirlines;
 
     // member airline count
     uint memberAirlineCount = 0;
@@ -80,13 +87,17 @@ contract FlightSuretyData {
     * @dev Constructor
     *      The deploying account becomes contractOwner
     */
-    constructor() public payable
+    constructor(
+        address firstAirline
+    ) public payable
     {
         contractOwner = msg.sender;
+        registeredAirlines.push(firstAirline);
+
 
         // Register airline
              setAirline(
-            msg.sender,
+            firstAirline,
             "American Flyer", AirlineState.Funded
         );
     }
@@ -203,6 +214,8 @@ contract FlightSuretyData {
         requireIsOperational
         requireCallerAuthorized
     {
+            registeredAirlines.push(airlineAddress);
+
             setAirline(
             airlineAddress,
             airlineName, airlineStatus
@@ -246,6 +259,17 @@ contract FlightSuretyData {
         emit AirlinePayedFund(fundPayer, msg.value);
     }
 
+    function getAirlineFunds(address airline)
+        external
+        view
+        requireIsOperational
+        requireCallerAuthorized
+            returns(uint funds)
+    {
+        return (airlines[airline].registerAmount);
+    }
+
+
     function isAirlineMember(address airlineAddress)
         external
         view
@@ -262,6 +286,16 @@ contract FlightSuretyData {
         requireCallerAuthorized
     {
         airlines[airlineAddress].airlineState = airlineState;
+    }
+
+    function getAirlines()
+                external
+                view
+                returns(address[] memory)
+
+
+    {
+        return registeredAirlines;
     }
 
     function getAirlineState(address airlineAddress)
@@ -349,15 +383,42 @@ function setAirline
     {
         bytes32 flightKey = getFlightKey(passengerAddress, flightName, departureTime);
         bytes32 insuranceKey = getInsuranceKey(passengerAddress, flightKey);
-        require(passengerInsurances[insuranceKey].isValue == true, "Passenger has already purchased insurance for this flight.");
+
+        require(passengerInsurances[insuranceKey].insuranceState == InsuranceState.Purchased, "Insurance already processed");
 
         flightInsurances[flightKey].push(insuranceKey);
+        
+        accountBalance[passengerAddress] = accountBalance[passengerAddress] - insuranceCost;
+
         passengerInsurances[insuranceKey] = Insurance({
                                                     buyer: passengerAddress,
                                                     airline: airlineAddress,
                                                     value: insuranceCost,
                                                     isValue: true,
-                                                    insuranceState: InsuranceState.Purchased});
+                                                    insuranceState: InsuranceState.Purchased,
+                                                    flightName: flightName});
+    }
+
+    function getPassengerFunds(address passenger)
+                external
+                view
+                returns(uint)
+
+
+    {
+        return accountBalance[passenger];
+    }
+
+    function withdrawPassengerFunds(uint amount,address payable passenger)
+        external
+        requireIsOperational
+        requireCallerAuthorized
+        returns(uint)
+    {
+        accountBalance[passenger] = accountBalance[passenger] - amount;
+        passenger.transfer(amount);
+
+        return accountBalance[passenger];
     }
 
 
